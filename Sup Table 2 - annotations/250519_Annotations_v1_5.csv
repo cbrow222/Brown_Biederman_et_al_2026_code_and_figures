@@ -1,0 +1,272 @@
+Cluster,cell_type_cluster,cell_type_general,tissue,system,short_cell_type,short_cell_type_cluster
+0,Neuron_glutamatergic_0,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_0
+1,Fast_muscle_1,Fast muscle,muscle,musculoskeletal,FastMuscle,FastMuscle_1
+2,Vagal_neuron_2,Vagal neuron,PNS,nervous,VagalNeuro,VagalNeuro_2
+3,Vagal_neuron_3,Vagal neuron,PNS,nervous,VagalNeuro,VagalNeuro_3
+4,Pharyngeal_periderm_4,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_4
+5,Cone_photoreceptor_UV_sensitive_5,Cone photoreceptor UV sensitive,eye,sensory,ConePhotUV,ConePhotUV_5
+6,POSSIBLE_MULTIPLETS_mix_of_muscle_and_exocrine_pancreas_6,POSSIBLE MULTIPLETS mix of muscle and exocrine pancreas,unknown,unknown,MULTMusPan,MULTMusPan_6
+7,Neuron_glutamatergic_7,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_7
+8,Neuron_unknown_8,Neuron unknown,neuron,nervous,NeuronUnkn,NeuronUnkn_8
+9,POSSIBLE_MULTIPLETS_mix_of_muscle_pancreas_lens_9,POSSIBLE MULTIPLETS mix of muscle pancreas lens,unknown,unknown,MULTMuPaLe,MULTMuPaLe_9
+10,Pharyngeal_periderm_10,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_10
+11,Oral/Pharyngeal_epithelium_11,Oral/Pharyngeal epithelium,epithelium,integumentary,OralPharEp,OralPharEp_11
+12,Nucleate_erythrocyte_12,Nucleate erythrocyte,blood,connective tissue,NucErythro,NucErythro_12
+13,Periderm_maybe_HIGH_RIBO_13,Periderm maybe HIGH RIBO,periderm,integumentary,PeridermHR,PeridermHR_13
+14,Mesenchyme_or_Cranial_Neural_Crest_or_Pharyngeal_arch_14,Mesenchyme or Cranial Neural Crest or Pharyngeal arch,mesenchyme,connective tissue,MeorNCorPA,MeorNCorPA_14
+15,Spinal_cord_interneuron_15,Spinal cord interneuron,CNS,nervous,SpinCorInt,SpinCorInt_15
+16,Cone_photoreceptor_green_sensitive_16,Cone photoreceptor green sensitive,eye,sensory,ConePhotGr,ConePhotGr_16
+17,Cone_retinal_bipolar_cell_probably_ON_17,Cone retinal bipolar cell probably ON,eye,sensory,ConRetBPON,ConRetBPON_17
+18,Cone_photoreceptor_blue_sensitive_18,Cone photoreceptor blue sensitive,eye,sensory,ConePhotBl,ConePhotBl_18
+19,Cranial_cartilage_19,Cranial cartilage,cartilage,connective tissue,CraniaCart,CraniaCart_19
+20,Skeletal_fast_muscle_20,Skeletal fast muscle,muscle,musculoskeletal,SkelFastMu,SkelFastMu_20
+21,Pharyngeal_arch_21,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_21
+22,Pharyngeal_arch_22,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_22
+23,Cone_photoreceptor_red_sensitive_23,Cone photoreceptor red sensitive,eye,sensory,ConePhoRed,ConePhoRed_23
+24,Pharyngeal_arch_24,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_24
+25,Fast_muscle_25,Fast muscle,muscle,musculoskeletal,FastMuscle,FastMuscle_25
+26,Enteric_glia_26,Enteric glia,enteric,nervous,EntericGli,EntericGli_26
+27,Pharyngeal_periderm_27,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_27
+28,Epidermis_likely_fin_28,Epidermis likely fin,epidermis,integumentary,EpidermFin,EpidermFin_28
+29,Vagal_neuron_29,Vagal neuron,PNS,nervous,VagalNeuro,VagalNeuro_29
+30,Fin_epidermis_30,Fin epidermis,fin,integumentary,FinEpiderm,FinEpiderm_30
+31,Fin_periderm_31,Fin periderm,fin,integumentary,FinPerider,FinPerider_31
+32,Pharyngeal_periderm_32,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_32
+33,Pharyngeal_periderm_33,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_33
+34,Oral/pharyngeal_epithelium_34,Oral/Pharyngeal epithelium,epithelium,integumentary,OralPharEp,OralPharEp_34
+35,Pharyngeal_arch_35,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_35
+36,Fin_periderm_36,Fin periderm,fin,integumentary,FinPerider,FinPerider_36
+37,Epidermis_37,Epidermis,epidermis,integumentary,Epidermis,Epidermis_37
+38,Pharyngeal_periderm_38,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_38
+39,Muscle_progenitor_or_myotome_39,Muscle progenitor or myotome,muscle,musculoskeletal,MusProMyot,MusProMyot_39
+40,Nucleate_erythrocyte_40,Nucleate erythrocyte,blood,connective tissue,NucErythro,NucErythro_40
+41,Neural_progenitor_41,Neural progenitor,neuron,nervous,NeuralProg,NeuralProg_41
+42,Mesenchyme_maybe_cardiac_42,Mesenchyme maybe cardiac,mesenchyme,connective tissue,MesmbCardi,MesmbCardi_42
+43,Enteric_glia_43,Enteric glia,enteric,nervous,EntericGli,EntericGli_43
+44,Fin_epidermis_44,Fin epidermis,fin,integumentary,FinEpiderm,FinEpiderm_44
+45,Branchial_periderm_or_epithelium_45,Branchial_periderm_or_epithelium,epithelium,respiratory,BrancPorEp,BrancPorEp_45
+46,Anterior_enterocyte_46,Anterior enterocyte,intestine,digestive,EnteroAnte,EnteroAnte_46
+47,Muscle_unknown_47,Muscle unknown,muscle,musculoskeletal,MuscleUnkn,MuscleUnkn_47
+48,Nucleate_erythrocyte_48,Nucleate erythrocyte,blood,connective tissue,NucErythro,NucErythro_48
+49,Neural_progenitor_notch1+_49,Neural progenitor,neuron,nervous,NeuralProg,NeuralProg_49
+50,Phtotoreceptor_precursor_50,Phtotoreceptor precursor,eye,sensory,PhotRecPre,PhotRecPre_50
+51,Fin_medial_epidermis_51,Fin medial epidermis,fin,integumentary,FinMedEpid,FinMedEpid_51
+52,Skeletal_muscle_52,Skeletal muscle,muscle,musculoskeletal,SkelMuscle,SkelMuscle_52
+53,Neuron_glutamatergic_53,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_53
+54,Retinal_pigmented_epithelium_54,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_54
+55,Pharyngeal_arch_55,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_55
+56,Oral/Pharyngeal_epithelium_56,Oral/Pharyngeal epithelium,epithelium,integumentary,OralPharEp,OralPharEp_56
+57,Neutrophil_57,Neutrophil,blood,immune,Neutrophil,Neutrophil_57
+58,Pharyngeal_epithelium_or_periderm_58,Pharyngeal epithelium or periderm,epithelium,integumentary,PharEpiPer,PharEpiPer_58
+59,Neural_midbrain_hindbrain_progenitor_59,Neural midbrain hindbrain progenitor,CNS,nervous,NeurMHProg,NeurMHProg_59
+60,Anterior_enterocyte_60,Anterior enterocyte,intestine,digestive,EnteroAnte,EnteroAnte_60
+61,Lens_61,Lens,eye,sensory,Lens,Lens_61
+62,Pharyngeal_arch_62,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_62
+63,Cone_photoreceptor_red_sensitive_63,Cone photoreceptor red sensitive,eye,sensory,ConePhoRed,ConePhoRed_63
+64,Vascular_endothelium_64,Vascular endothelium,vasculature,cardiovascular,VascEndoth,VascEndoth_64
+65,Mucous_producing_head_periderm_65,Mucous producing head periderm,periderm,integumentary,MucHeadPer,MucHeadPer_65
+66,Vasculature_maybe_HIGH_RIBO_66,Vasculature maybe HIGH RIBO,vasculature,cardiovascular,VascularHR,VascularHR_66
+67,Cephalic_cranial_muscle_67,Cephalic cranial muscle,muscle,musculoskeletal,CephCraMus,CephCraMus_67
+68,Posterior_epidermis_68,Posterior epidermis,epidermis,integumentary,PostEpider,PostEpider_68
+69,Taste_bud_type_I+II_sweet_bitter_umami_69,Taste bud type I+II sweet bitter umami,taste,sensory,TasteBud12,TasteBud12_69
+70,Gut_progenitor_maybe_HIGH_MITO_70,Gut progenitor maybe HIGH MITO,digestive general,digestive,GutProgeHM,GutProgeHM_70
+71,Cone_photoreceptor_green_sensitive71,Cone photoreceptor green sensitive,eye,sensory,ConePhotGr,ConePhotGr_71
+72,Oral/Pharyngeal_epithelium_72,Oral/Pharyngeal epithelium,epithelium,integumentary,OralPharEp,OralPharEp_72
+73,Ionocyte_H_ATPase_rich_rhcgb+_73,Ionocyte H ATPase rich rhcgb+,ionocyte,transporter,IonoHATPas,IonoHATPas_73
+74,Oral/Pharyngeal_epithelium_74,Oral/Pharyngeal epithelium,epithelium,integumentary,OralPharEp,OralPharEp_74
+75,Fin_epidermis_75,Fin epidermis,fin,integumentary,FinEpiderm,FinEpiderm_75
+76,Retinal_pigmented_epithelium_76,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_76
+77,Vasculature_blood_brain_barrier_77,Vasculature blood brain barrier,vasculature,cardiovascular,VasBlBrBar,VasBlBrBar_77
+78,Pharyngeal_arch_78,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_78
+79,Hair_cell_79,Hair cell,otic,sensory,HairCell,HairCell_79
+80,Granule_or_neuron_80,Granule or neuron,neuron,nervous,GranuleorN,GranuleorN_80
+81,Retinal_rod_cell_81,Retinal rod cell,eye,sensory,RetinalRod,RetinalRod_81
+82,Lens_82,Lens,eye,sensory,Lens,Lens_82
+83,Iridophore_83,Iridophore,pigment,neural crest,Iridophore,Iridophore_83
+84,Fast_muscle_84,Fast muscle,muscle,musculoskeletal,FastMuscle,FastMuscle_84
+85,Neural_maybe_HIGH_RIBO_85,Neural maybe HIGH RIBO,neuron,nervous,NeuralmbHR,NeuralmbHR_85
+86,Periderm_86,Periderm,periderm,integumentary,Periderm,Periderm_86
+87,Retinal_pigmented_epithelium_87,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_87
+88,Lens_88,Lens,eye,sensory,Lens,Lens_88
+89,Pharyngeal_arch_89,Pharyngeal arch,mesenchyme,connective tissue,PharynArch,PharynArch_89
+90,Skeletal_muscle_90,Skeletal muscle,muscle,musculoskeletal,SkelMuscle,SkelMuscle_90
+91,Lateral_line_neuromast_91,Lateral line neuromast,lateral line,sensory,LatLineNMa,LatLineNMa_91
+92,Muller_glia_92,Muller glia,eye,sensory,MullerGlia,MullerGlia_92
+93,Lens_93,Lens,eye,sensory,Lens,Lens_93
+94,Macrophage_94,Macrophage,blood,immune,Macrophage,Macrophage_94
+95,Pharyngeal_periderm_95,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_95
+96,Ionocyte_NaCl_cotransporter_96,Ionocyte NaCl cotransporter,ionocyte,transporter,IonoNaClCT,IonoNaClCT_96
+97,Neuron_midbrain_hindbrain_boundary_progenitor_97,Neuron midbrain hindbrain boundary progenitor,CNS,nervous,MHBBouProg,MHBBouProg_97
+98,Nucleate_erythrocyte_98,Nucleate erythrocyte,blood,connective tissue,NucErythro,NucErythro_98
+99,Basal_cell_or_epidermis_99,Basal cell or epidermis,epidermis,integumentary,BasalorEpi,BasalorEpi_99
+100,Mesenchyme_100,Mesenchyme,mesenchyme,connective tissue,Mesenchyme,Mesenchyme_100
+101,Neuron_glutamatergic_101,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_101
+102,Lateral_line_central_support_cell_102,Lateral line central support cell,lateral line,sensory,LatLinCSup,LatLinCSup_102
+103,Neural_progenitor_103,Neural progenitor,neuron,nervous,NeuralProg,NeuralProg_103
+104,Ionocyte_K+_secreting_KS_104,Ionocyte K+ secreting KS,ionocyte,transporter,IonoKplusS,IonoKplusS_104
+105,Head_mesenchyme_stromal_105,Head mesenchyme stromal,stromal,connective tissue,HeadMesStr,HeadMesStr_105
+106,Cornea_106,Cornea,eye,sensory,Cornea,Cornea_106
+107,Meninges_precursor_107,Meninges precursor,meningeal,connective tissue,MeningePre,MeningePre_107
+108,Cone_photoreceptor_green_sensitive_108,Cone photoreceptor green sensitive,eye,sensory,ConePhotGr,ConePhotGr_108
+109,Nucleate_erythrocyte_109,Nucleate erythrocyte,blood,connective tissue,NucErythro,NucErythro_109
+110,Iridophore_110,Iridophore,pigment,neural crest,Iridophore,Iridophore_110
+111,Retinal_rod_cell_111,Retinal rod cell,eye,sensory,RetinalRod,RetinalRod_111
+112,Mesenchyme_112,Mesenchyme,mesenchyme,connective tissue,Mesenchyme,Mesenchyme_112
+113,Taste_bud_type_I+II_sweet_bitter_umami_113,Taste bud type I+II sweet bitter umami,taste,sensory,TasteBud12,TasteBud12_113
+114,Iridophore_precursor_neural_crest_114,Iridophore precursor neural crest,unspecified,neural crest,IridoPreNC,IridoPreNC_114
+115,Ionocyte_K+_secreting_KS_115,Ionocyte K+ secreting KS,ionocyte,transporter,IonoKplusS,IonoKplusS_115
+116,Nucleate_erythrocyte_HIGH_MITO_116,Nucleate erythrocyte HIGH MITO,blood,connective tissue,NucErythHM,NucErythHM_116
+117,Retinal_pigmented_epithelium_117,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_117
+118,Neuron_unknown_118,Neuron unknown,neuron,nervous,NeuronUnkn,NeuronUnkn_118
+119,Cartilage_119,Cartilage,cartilage,connective tissue,Cartilage,Cartilage_119
+120,Amacrine_cell_120,Amacrine cell,eye,sensory,Amacrine,Amacrine_120
+121,Slow_muscle_121,Slow muscle,muscle,musculoskeletal,SlowMuscle,SlowMuscle_121
+122,Fast_muscle_122,Fast muscle,muscle,musculoskeletal,FastMuscle,FastMuscle_122
+123,Pharynx_and_cloaca_123,Pharynx and cloaca,digestive general,digestive,PharynxClo,PharynxClo_123
+124,Retinal_cone_cell_or_neuron_124,Retinal cone cell or neuron,eye,sensory,RetialConN,RetialConN_124
+125,Neuron_glutamatergic_or_retinal_or_oligodendrocyte_125,Neuron glutamatergic or retinal or oligodendrocyte,neuron,nervous,NGluRetOli,NGluRetOli_125
+126,Inner_ear_support_cell_126,Inner ear support cell,otic,sensory,InnerEarSC,InnerEarSC_126
+127,Nose_periderm_oct2+_127,Nose periderm,periderm,integumentary,NosePeride,NosePeride_127
+128,Intestinal_goblet_cell_128,Intestinal goblet cell,intestine,digestive,IntestGobl,IntestGobl_128
+129,Intestinal_goblet_cell_129,Intestinal goblet cell,intestine,digestive,IntestGobl,IntestGobl_129
+130,Cone_photoreceptor_green_sensitive_130,Cone photoreceptor green sensitive,eye,sensory,ConePhotGr,ConePhotGr_130
+131,Meningeal_fibroblast_131,Meningeal fibroblast,meningeal,connective tissue,MeningeFib,MeningeFib_131
+132,Liver_endothelial_cell_132,Liver endothelial cell,liver,cardiovascular,LiverEndot,LiverEndot_132
+133,Roofplate_133,Roofplate,CNS,nervous,Roofplate,Roofplate_133
+134,Hepatocyte_134,Hepatocyte,liver,digestive,Hepatocyte,Hepatocyte_134
+135,Slow_muscle_135,Slow muscle,muscle,musculoskeletal,SlowMuscle,SlowMuscle_135
+136,Otic_vesicle_136,Otic vesicle,otic,sensory,OticVesicl,OticVesicl_136
+137,Enteric_motor_neuron_137,Enteric motor neuron,enteric,nervous,EntericMoN,EntericMoN_137
+138,Melanocyte_138,Melanocyte,pigment,neural crest,Melanocyte,Melanocyte_138
+139,Pronephric_proximal_convoluted_tubule_139,Pronephric proximal convoluted tubule,kidney,pronephric,PronProxCT,PronProxCT_139
+140,Pericyte_unknown_140,Pericyte unknown,unspecified,cardiovascular,PericytUnk,PericytUnk_140
+141,Neural_crest_cell_141,Neural crest cell,unspecified,neural crest,NeuralCres,NeuralCres_141
+142,Enterocyte_lysosome_rich_142,Enterocyte lysosome rich,intestine,digestive,EnteroLyso,EnteroLyso_142
+143,Oligodendrocyte_HIGH_RIBO_143,Oligodendrocyte HIGH RIBO,CNS,nervous,OligodenHR,OligodenHR_143
+144,Gill_epithelium_144,Gill epithelium,epithelium,respiratory,GillEpithe,GillEpithe_144
+145,Ileocyte_145,Ileocyte,intestine,digestive,Ileocyte,Ileocyte_145
+146,Ionocyte_H_ATPase_rich_rhcgb+_146,Ionocyte H ATPase rich rhcgb+,ionocyte,transporter,IonoHATPas,IonoHATPas_146
+147,Neuron_glutamatergic_probably_147,Neuron glutamatergic probably,neuron,nervous,NeurGlutpr,NeurGlutpr_147
+148,Taste_bud_type_III_sour_148,Taste bud type III sour,taste,sensory,TasteBud3,TasteBud3_148
+149,Leptomeniges_brain_enclosing_membrane_149,Leptomeniges brain enclosing membrane,meningeal,connective tissue,Leptomenig,Leptomenig_149
+150,Neuron_glutamatergic_150,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_150
+151,Cholangiocyte_151,Cholangiocyte,bile duct,digestive,Cholangio,Cholangio_151
+152,Fin_mesenchyme_dorsal_fold_152,Fin mesenchyme dorsal fold,fin,connective tissue,FinMesDorF,FinMesDorF_152
+153,Vascular_endothelium_153,Vascular endothelium,vasculature,cardiovascular,VascEndoth,VascEndoth_153
+154,Cone_photoreceptor_red_sensitive_154,Cone photoreceptor red sensitive,eye,sensory,ConePhoRed,ConePhoRed_154
+155,Oligodendrocyte_likely_brain_glia_155,Oligodendrocyte likely brain glia,glia,nervous,OligoBrGli,OligoBrGli_155
+156,Myotome_or_cephalic_musculature_156,Myotome or cephalic musculature,muscle,musculoskeletal,MyotorCepM,MyotorCepM_156
+157,Fin_apical_ectodermal_ridge_157,Fin apical ectodermal ridge,fin,integumentary,FinApEctRi,FinApEctRi_157
+158,Exocrine_Pancreas_158,Exocrine Pancreas,exocrine pancreas,digestive,ExPancreas,ExPancreas_158
+159,Gill_epithelium_159,Gill epithelium,epithelium,respiratory,GillEpithe,GillEpithe_159
+160,Pharyngeal_pouch_160,Pharyngeal pouch,gill,respiratory,PharyPouch,PharyPouch_160
+161,Cartilage_maybe_cranial_161,Cartilage maybe cranial,cartilage,connective tissue,CartmbCran,CartmbCran_161
+162,Roofplate_162,Roofplate,CNS,nervous,Roofplate,Roofplate_162
+163,Hair_cell_163,Hair cell,otic,sensory,HairCell,HairCell_163
+164,Floor_plate_164,Floor plate,CNS,nervous,FloorPlate,FloorPlate_164
+165,Oligodendrocyte_likely_spinal_cord_165,Oligodendrocyte likely spinal cord,glia,nervous,OligoSpCor,OligoSpCor_165
+166,Cornea_166,Cornea,eye,sensory,Cornea,Cornea_166
+167,Lens_167,Lens,eye,sensory,Lens,Lens_167
+168,Ionocyte_NaCl_cotransporter_epidermal_168,Ionocyte NaCl cotransporter epidermal,ionocyte,transporter,IonoNaClEp,IonoNaClEp_168
+169,Neuron_glutamatergic_169,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_169
+170,Xanthophore_170,Xanthophore,pigment,neural crest,Xanthophor,Xanthophor_170
+171,Enteric_motor_neuron_or_ganglion_171,Enteric motor neuron or ganglion,enteric,nervous,EnMoNorGan,EnMoNorGan_171
+172,Cone_photoreceptor_potentially_immature_172,Cone photoreceptor potentially immature,eye,sensory,ConePhoImm,ConePhoImm_172
+173,Motor_neuron_or_PNS_173,Motor neuron or PNS,neuron,nervous,MotoNorPNS,MotoNorPNS_173
+174,Odontoblast_epithelium_174,Odontoblast epithelium,bone,musculoskeletal,OdonBlasEp,OdonBlasEp_174
+175,Radial_glial_cell_175,Radial glial cell,glia,nervous,Radialgli,Radialgli_175
+176,Vasculature_lymphatic_176,Vasculature lymphatic,vasculature,cardiovascular,VascuLymph,VascuLymph_176
+177,Pericyte_unknown_177,Pericyte unknown,unspecified,cardiovascular,PericytUnk,PericytUnk_177
+178,Melanocyte_178,Melanocyte,pigment,neural crest,Melanocyte,Melanocyte_178
+179,Neuroendocrine_cell_179,Neuroendocrine cell,neuroendocrine,endocrine,NeurEndocr,NeurEndocr_179
+180,Cartilage_180,Cartilage,cartilage,connective tissue,Cartilage,Cartilage_180
+181,Retinal_ganglion_cell_181,Retinal ganglion cell,eye,sensory,RetGangCel,RetGangCel_181
+182,Vascular_smooth_muscle_182,Vascular smooth muscle,vasculature,cardiovascular,VasSmooMus,VasSmooMus_182
+183,Taste_bud_type_III_sour_183,Taste bud type III sour,taste,sensory,TasteBud3,TasteBud3_183
+184,Cephalic_cranial_muscle_184,Cephalic cranial muscle,muscle,musculoskeletal,CephCraMus,CephCraMus_184
+185,Neuron_dopaminergic_or_glutamatergic_185,Neuron dopaminergic or glutamatergic,neuron,nervous,NeurDopGlu,NeurDopGlu_185
+186,Stromal_cell_186,Stromal cell,stromal,connective tissue,Stromal,Stromal_186
+187,Myoblast_satelite cell_or_Mesenchyme_cartilage_187,Myoblast satelite cell or Mesenchyme cartilage,mesenchyme,connective tissue,MyoblSatMC,MyoblSatMC_187
+188,Optic_or_retinal_progenitor_188,Optic or retinal progenitor,eye,sensory,OptRetProg,OptRetProg_188
+189,Hepatocyte_189,Hepatocyte,liver,digestive,Hepatocyte,Hepatocyte_189
+190,Taste_bud_type_III_sour_190,Taste bud type III sour,taste,sensory,TasteBud3,TasteBud3_190
+191,Pharyngeal_arch_neural_crest_cell_191,Pharyngeal arch neural crest cell,unspecified,neural crest,PharArchNC,PharArchNC_191
+192,Neuron_glutamatergic_192,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_192
+193,Multiciliated_olfactory_epithelium_193,Multiciliated olfactory epithelium,olfactory,sensory,MCiOlfEpit,MCiOlfEpit_193
+194,Dorsal_habenula_glutamatergic_neuron_194,Dorsal habenula glutamatergic neuron,CNS,nervous,DorsalHabG,DorsalHabG_194
+195,Anterior_enterocyte_195,Anterior enterocyte,intestine,digestive,EnteroAnte,EnteroAnte_195
+196,Roofplate_196,Roofplate,CNS,nervous,Roofplate,Roofplate_196
+197,Fin_mesenchyme_ventral_fin_fold_197,Fin mesenchyme ventral fin fold,fin,connective tissue,FinMesVenF,FinMesVenF_197
+198,Neuron_dopaminergic_or_noradrenergic_th+_dbh+_198,Neuron dopaminergic or noradrenergic,neuron,nervous,NeuDopNora,NeuDopNora_198
+199,Retinal_pigmented_epithelium_199,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_199
+200,Purkinje_neuron_200,Purkinje neuron,CNS,nervous,PurkinjeNe,PurkinjeNe_200
+201,Retinal_pigmented_epithelium_201,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_201
+202,Pancreatic_alpha_beta_delta_cell_202,Pancreatic alpha beta delta cell,endocrine pancreas,endocrine,PancreaABD,PancreaABD_202
+203,Cardiac_muscle_203,Cardiac muscle,heart,cardiovascular,CardiacMus,CardiacMus_203
+204,Pneumatic_duct_surfactant_cell_204,Pneumatic duct surfactant cell,gill,respiratory,PneumDucSu,PneumDucSu_204
+205,Cephalic_cranial_muscle_205,Cephalic cranial muscle,muscle,musculoskeletal,CephCraMus,CephCraMus_205
+206,Cone_photoreceptor_potentially_immature_206,Cone photoreceptor potentially immature,eye,sensory,ConePhoImm,ConePhoImm_206
+207,Esophagus_goblet_cell_207,Esophagus goblet cell,esophagus,digestive,EsophagGob,EsophagGob_207
+208,Hepatic_stellate_cell_208,Hepatic stellate cell,liver,connective tissue,HepatStell,HepatStell_208
+209,Neuron_glutamatergic_or_GABAergic_209,Neuron glutamatergic or GABAergic,neuron,nervous,NeGluorGab,NeGluorGab_209
+210,Retinal_pigmented_epithelium_210,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_210
+211,Cornea_211,Cornea,eye,sensory,Cornea,Cornea_211
+212,Neuron_likely_diencephalon_GABAergic_212,Neuron likely diencephalon GABAergic,CNS,nervous,NeurDienGa,NeurDienGa_212
+213,Cardiac_mesenchyme_213,Cardiac mesenchyme,heart,cardiovascular,CardiacMes,CardiacMes_213
+214,Olfactory_sensory_neuron_214,Olfactory sensory neuron,olfactory,sensory,OlfactoryN,OlfactoryN_214
+215,Enteric_musculature_215,Enteric musculature,muscle,musculoskeletal,EntericMus,EntericMus_215
+216,Enteric_inhibitory_motor_neuron_216,Enteric inhibitory motor neuron,enteric,nervous,EnInhibMoN,EnInhibMoN_216
+217,Thrombocyte_217,Thrombocyte,blood,connective tissue,Thrombocyt,Thrombocyt_217
+218,Neuron_telencephalon_olfactory_bulb_218,Neuron telencephalon olfactory bulb,olfactory,sensory,NeuTelonOB,NeuTelonOB_218
+219,CNS_neuron_219,CNS neuron,CNS,nervous,CNSNeuron,CNSNeuron_219
+220,Radial_glial_cell_220,Radial glial cell,glia,nervous,Radialgli,Radialgli_220
+221,Horizontal_retinal_interneuron_221,Horizontal retinal interneuron,eye,sensory,HorizRetIn,HorizRetIn_221
+222,Cone_photoreceptor_potentially_immature_222,Cone photoreceptor potentially immature,eye,sensory,ConePhoImm,ConePhoImm_222
+223,Ionocyte_Na+_K+_ATPase_Rich_223,Ionocyte Na+ K+ ATPase Rich,ionocyte,transporter,IonoNAKATP,IonoNAKATP_223
+224,Cone_photoreceptor_potentially_immature_224,Cone photoreceptor potentially immature,eye,sensory,ConePhoImm,ConePhoImm_224
+225,Intestine_tuft_like_225,Intestine tuft like,intestine,digestive,IntestTuft,IntestTuft_225
+226,Pharyngeal_periderm_226,Pharyngeal periderm,periderm,integumentary,PharynPeri,PharynPeri_226
+227,Pharyngeal_neuroepithelium_gfra3+_227,Pharyngeal neuroepithelium,epithelium,sensory,PharNeEpit,PharNeEpit_227
+228,Mucous_producing_head_periderm_228,Mucous producing head periderm,periderm,integumentary,MucHeadPer,MucHeadPer_228
+229,Intestinal_secretory_progenitor_229,Intestinal secretory progenitor,intestine,digestive,IntSecProg,IntSecProg_229
+230,Neuron_probably_brain_230,Neuron probably brain,CNS,nervous,NeurProbBr,NeurProbBr_230
+231,Pronephric_proximal_straight_tubule_231,Pronephric proximal straight tubule,kidney,pronephric,PronProxST,PronProxST_231
+232,Enteroendocrine_cell_232,Enteroendocrine cell,intestine,endocrine,EnteroEndo,EnteroEndo_232
+233,Stromal_cell_233,Stromal cell,stromal,connective tissue,Stromal,Stromal_233
+234,Pharynx_234,Pharynx,digestive general,digestive,Pharynx,Pharynx_234
+235,Muller_glia_235,Muller glia,eye,sensory,MullerGlia,MullerGlia_235
+236,Pronephric_glomerulus_236,Pronephric glomerulus,kidney,pronephric,PronGlomer,PronGlomer_236
+237,Sensory_epithelium_maybe_hair_cell_or_olfactory_237,Sensory epithelium maybe hair cell or olfactory,epithelium,sensory,SensEpiHCO,SensEpiHCO_237
+238,Vascular_smooth_muscle_238,Vascular smooth muscle,vasculature,cardiovascular,VasSmooMus,VasSmooMus_238
+239,CNS_neuron_239,CNS neuron,CNS,nervous,CNSNeuron,CNSNeuron_239
+240,Osteoblast_possibly_dental_240,Osteoblast possibly dental,bone,musculoskeletal,OsteorDent,OsteorDent_240
+241,Purkinje_neuron_or_retinal_ganglion_cell_241,Purkinje neuron or retinal ganglion cell,neuron,nervous,PurkorReGa,PurkorReGa_241
+242,Lens_242,Lens,eye,sensory,Lens,Lens_242
+243,Neuron_glutamatergic_243,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_243
+244,Skeletal_fast_muscle_or_cephalic_cranial_244,Skeletal fast muscle or cephalic cranial,muscle,musculoskeletal,SkFaMuCeCr,SkFaMuCeCr_244
+245,Amacrine_cell_245,Amacrine cell,eye,sensory,Amacrine,Amacrine_245
+246,Oligodendrocyte_246,Oligodendrocyte,glia,nervous,Oligodendr,Oligodendr_246
+247,POSSIBLE_MULTIPLETS_cone_photoreceptors_and_nucleate_erythrocytes_247,POSSIBLE MULTIPLETS cone photoreceptors and nucleate erythrocytes,unknown,unknown,MULTConEry,MULTConEry_247
+248,Fin_mesenchyme__pectoral_probably_chondrogenic_248,Pectoral fin mesenchyme probably chondrogenic,fin,connective tissue,PecFinMCho,PecFinMCho_248
+249,Neuron_glutamatergic_249,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_249
+250,Epiphysis_nonvisual_photoreceptor_pineal_circadian_250,Epiphysis nonvisual photoreceptor pineal circadian,CNS,nervous,EpiphysisP,EpiphysisP_250
+251,Adenohypophysis_anterior_pituitary_251,Adenohypophysis anterior pituitary,CNS,nervous,AdenohypAP,AdenohypAP_251
+252,Neurohypophysis_posterior_pituitary_maybe_252,Neurohypophysis posterior pituitary maybe,CNS,nervous,NeurohypPP,NeurohypPP_252
+253,Pronephric_distal_tubule_early_253,Pronephric distal tubule early,kidney,pronephric,PronDisTub,PronDisTub_253
+254,POSSIBLE_MULTIPLETS_lens-cone_254,POSSIBLE MULTIPLETS lens cone,eye,sensory,MULTLenCon,MULTLenCon_254
+255,Pronephric_ciliated_cell_podocyte_and_multiciliated_255,Pronephric ciliated cell podocyte and multiciliated,kidney,pronephric,PronCilPod,PronCilPod_255
+256,Smooth_muscle_unknown_type_256,Smooth muscle unknown type,muscle,musculoskeletal,SmooMusUnk,SmooMusUnk_256
+257,Enterocyte_best4+_otop2+_257,Enterocyte best4+ otop2+,intestine,digestive,EnBestOtop,EnBestOtop_257
+258,Radial_glial_cell_258,Radial glial cell,glia,nervous,Radialgli,Radialgli_258
+259,Melanocyte_259,Melanocyte,pigment,neural crest,Melanocyte,Melanocyte_259
+260,Fin_epidermis_260,Fin epidermis,fin,integumentary,FinEpiderm,FinEpiderm_260
+261,KA''_neuron_ventral_floor_plate_derived_261,KA'' neuron ventral floor plate derived,neuron,nervous,KAiiNeuron,KAiiNeuron_261
+262,Neuron_glutamatergic_262,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_262
+263,Macrophage_263,Macrophage,blood,immune,Macrophage,Macrophage_263
+264,Retinal_pigmented_epithelium_264,Retinal pigmented epithelium,eye,sensory,RetPigEpit,RetPigEpit_264
+265,Neuron_glutamatergic_265,Neuron glutamatergic,neuron,nervous,NeuronGlut,NeuronGlut_265
+266,Retinal_rod_cell_266,Retinal rod cell,eye,sensory,RetinalRod,RetinalRod_266
+267,Neuron_glutamatergic_maybe_267,Neuron glutamatergic maybe,neuron,nervous,NeurGlutmb,NeurGlutmb_267
+268,Interrenal_gland_steroid_hormone_secreting_cell_268,Interrenal gland steroid hormone secreting cell,interrenal gland,endocrine,InterRenal,InterRenal_268
+269,Neuron_glutamatergic_or_GABAergic_269,Neuron glutamatergic or GABAergic,neuron,nervous,NeGluorGab,NeGluorGab_269
+270,Cone_photoreceptor_green_sensitive_270,Cone photoreceptor green sensitive,eye,sensory,ConePhotGr,ConePhotGr_270

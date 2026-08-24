@@ -1,0 +1,338 @@
+---
+title: "MB4-MB26v1.4 propeller for fig 2"
+author: "Michelle Biederman"
+date: "5/12/25"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+I need TIFFs of the plots for my figures.  Plotting in console to save.
+
+Adusted window so divide was under D of Debug in the menu above.
+
+# Load libpaths
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+# Load the libraries
+
+```{r, message=FALSE}
+library(speckle, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(Seurat)
+library(CellBench, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(limma, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(ggplot2)
+library(scater, lib="/apps/R/4.3.2/osca/")
+library(patchwork)
+library(edgeR, lib="/apps/R/4.3.2/osca/")
+library(statmod, lib="/apps/R/4.3.2/osca/")
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(viridisLite)
+library(cowplot)
+library(tidyr)
+library(ape, lib="/apps/R/4.3.2/DESeq2")
+library(paletteer, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(prismatic, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(writexl)
+```
+
+# Load data
+
+```{r}
+MB.combined <- readRDS("/mnt/sequence/home/biederman/230602_v1/filtered/250113_atlas_v1_4.rds")
+MB.combined
+```
+
+# Check metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Add short_cell_type_cluster to metadata
+
+```{r}
+MB.combined@meta.data <- unite(MB.combined@meta.data, short_cell_type_cluster, short_cell_type, seurat_clusters, sep = "_", remove = FALSE)
+head(MB.combined@meta.data)
+```
+
+# Add metadata columns for propeller
+
+```{r}
+MB.combined$cluster <- MB.combined$short_cell_type_cluster
+MB.combined$sample <- MB.combined$sample_name
+MB.combined$group <- MB.combined$condition
+```
+
+# check new metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Change Ident to cell_type_cluster
+
+```{r}
+Idents(MB.combined) <- "short_cell_type_cluster"
+```
+
+# Perform arcsin square root transformation
+
+```{r}
+propeller(MB.combined, transform="asin")
+```
+
+Another option for running propeller is for the user to supply the cluster, 
+sample and group information explicitly to the propeller function.
+
+```{r}
+propeller(clusters=MB.combined$cluster, sample=MB.combined$sample, group=MB.combined$group)
+```
+
+# Visualise the results
+
+In the `r BiocStyle::Biocpkg("speckle")` package there is a plotting function 
+`plotCellTypeProps` that takes a `Seurat` or `SingleCellExperiment` object, 
+extracts sample and cluster information and outputs a barplot of cell type 
+proportions between the samples. The user also has the option of supplying the
+cluster and sample cell information instead of an R object. The output is a 
+`ggplot2` object that the user can then manipulate however they please.
+
+```{r,fig.height=40,fig.width=40}
+plotCellTypeProps(MB.combined)
+```
+
+Alternatively, we can obtain the cell type proportions and transformed 
+proportions directly by running the `getTransformedProps` function which takes 
+the cluster and sample information as input. The output from 
+`getTransformedProps` is a list with the cell type counts, transformed 
+proportions and proportions as elements.
+
+```{r,fig.height=40,fig.width=40}
+props <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="asin")
+barplot(props$Proportions, col = c("orange","purple","dark green"),legend=TRUE, 
+        ylab="Proportions")
+```
+
+## Strip chart
+
+Call me old-school, but I still like looking at stripcharts to visualise results
+and see whether the significant p-values make sense.
+
+~c("t0_sample1_UF","t0_sample2_UF","t0_sample3_UF","t1_sample4_15HF","t1_sample5_15HF","t1_sample6_15HF","t2_sample7_30HF","t2_sample8_30HF","t3_sample10_60HF","t3_sample11_60HF","t3_sample9_60HF","t4_sample12_120HF","t4_sample13_120HF","t5_sample14_240HF","t5_sample15_240HF")
+
+```{r,fig.height=10,fig.width=5}
+par(mfrow=c(28,10), cex =0.1)
+for(i in seq(1,271,1)){
+  stripchart(props$Proportions[i,]~c("t0_sample1_UF","t0_sample2_UF","t0_sample3_UF","t1_sample4_15HF","t1_sample5_15HF","t1_sample6_15HF","t2_sample7_30HF","t2_sample8_30HF","t3_sample10_60HF","t3_sample11_60HF","t3_sample9_60HF","t4_sample12_120HF","t4_sample13_120HF","t5_sample14_240HF","t5_sample15_240HF"),
+             ylim=c(min(props$Proportions), max(props$Proportions)),
+             vertical=TRUE, pch=16, method="jitter",
+             col = c("orange","purple","darkgreen","darkorange","violet","blue", "gray", "yellow", "green", "cyan","red", "magenta", "tan", "chartreuse","skyblue"),cex=2, ylab="Proportions")
+title(rownames(props$Proportions)[i])
+}
+```
+
+```{r,fig.height=6,fig.width=5}
+par(mfrow=c(14,20), cex =0.1)
+for(i in seq(1,271,1)){
+  stripchart(props$TransformedProps[i,]~c("t0_sample1_UF","t0_sample2_UF","t0_sample3_UF","t1_sample4_15HF","t1_sample5_15HF","t1_sample6_15HF","t2_sample7_30HF","t2_sample8_30HF","t3_sample10_60HF","t3_sample11_60HF","t3_sample9_60HF","t4_sample12_120HF","t4_sample13_120HF","t5_sample14_240HF","t5_sample15_240HF"),
+             ylim=c(min(props$TransformedProps), max(props$TransformedProps)),
+             vertical=TRUE, pch=16, method="jitter",
+             col = c("orange","purple","darkgreen","darkorange","violet","blue", "gray", "yellow", "green", "cyan","red", "magenta", "tan", "chartreuse","skyblue"),cex=2, ylab="Proportions")
+title(rownames(props$Proportions)[i])
+}
+```
+
+# transformed props data frame
+
+```{r}
+t.prop.df <- as.data.frame(props$TransformedProps)
+t.prop.df
+```
+
+```{r}
+t.prop.df %>%
+  group_by(clusters) %>%
+  summarize(variance = var(Freq))
+```
+
+# transformed plots boxplots
+
+```{r, fig.width=40, fig.height=10}
+t.prop.df %>%
+  ggplot(aes(x=clusters, y=Freq, color=sample))+
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2), size = 0.8) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = "bottom")
+```
+
+# See which models best fit data variances
+
+If you are interested in seeing which models best fit the data in terms of the
+cell type variances, there are two plotting functions that can do this: 
+plotCellTypeMeanVar and plotCellTypePropsMeanVar. For this particular 
+dataset it isn't very informative because there are only three cell "types" 
+and no biogical variability.
+
+```{r,fig.height=5, fig.width=10}
+props.arcsin <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="asin")
+par(mfrow=c(1,1))
+plotCellTypeMeanVar(props.arcsin$Counts)
+plotCellTypePropsMeanVar(props.arcsin$Counts)
+```
+
+# Fitting linear models using the transformed proportions directly
+
+If you are like me, you won't feel very comfortable with a black-box approach 
+where one function simply spits out a table of results. If you would like to 
+have more control over your linear model and include extra covariates then you 
+can fit a linear model in a more direct way using the transformed proportions 
+that can be obtained by running the getTransformedProps function.
+
+We have already obtained the proportions and transformed proportions when we ran
+the getTransformedProps function above. This function outputs a list object 
+with three elements: Counts, TransformedProps and Proportions. These are 
+all matrices with clusters/cell types in the rows and samples in the columns.
+
+First we need to set up our sample information in much the same way we would if 
+we were analysing bulk RNA-seq data. We can pretend that we have pairing 
+information which corresponds to our original vs bootstrapped samples to make 
+our model a little more complicated for demonstration purposes. 
+
+# set up sample info
+
+```{r}
+group <- c("t0_UF","t0_UF","t0_UF","t1_15HF","t1_15HF","t1_15HF","t2_30HF","t2_30HF","t3_60HF","t3_60HF","t3_60HF","t4_120HF","t4_120HF","t5_240HF","t5_240HF")
+sampleMB <- c(1,2,3,1,2,3,1,2,1,2,3,1,2,1,2)
+mb.df <- data.frame(group,sampleMB)
+mb.df
+```
+
+# Design model matrix
+
+We can set up a design matrix taking into account group and pairing information.
+Please note that the way that propeller has been designed is such that the 
+group information is *always* first in the design matrix specification, and 
+there is NO intercept. If you are new to design matrices and linear modelling, I
+would highly recommend reading the r BiocStyle::Biocpkg("limma") manual, which
+is incredibly extensive and covers a variety of different experimental set ups.
+
+```{r}
+design <- model.matrix(~ 0 + group + sampleMB, data = mb.df, na.action)
+design
+```
+
+#ANOVA 
+
+In our example, we have three groups, 10x, CelSeq and DropSeq. In order to 
+perform an ANOVA to test for cell type composition differences between these
+3 technologies, we can use the propeller.anova function. The coef argument
+tells the function which columns of the design matrix correspond to the groups 
+we are interested in testing. Here we are interested in the first three columns.
+
+## ANOVA arcsin
+
+```{r}
+MB.anova.arcsin <- propeller.anova(prop.list=props.arcsin, design=design, coef = c(1,2,3,4,5,6), 
+                robust=TRUE, trend=FALSE, sort=TRUE)
+MB.anova.arcsin
+```
+
+```{r}
+arcsin.MB.df <- MB.anova.arcsin %>% 
+  select("PropMean.groupt0_UF", "PropMean.groupt1_15HF", "PropMean.groupt2_30HF", "PropMean.groupt3_60HF", "PropMean.groupt4_120HF", "PropMean.groupt5_240HF")
+arcsin.MB.df
+```
+
+
+```{r}
+df <- arcsin.MB.df
+# Assuming `df` is your original dataframe
+# where rows = Genes and columns = Cell Types
+
+# List to store the transformed dataframes
+transformed_dfs <- list()
+
+# Loop through each column (cell type)
+for (PropMean.group in colnames(df)) {
+  # Subset the current column (which represents a cell type) and transpose it
+  subset_df <- data.frame(PropMean.group = PropMean.group, cell_type_cluster = rownames(df), PropMean = df[, PropMean.group])
+  
+  # Add this subset dataframe to the list
+  transformed_dfs[[PropMean.group]] <- subset_df
+}
+
+# Now combine all the dataframes by row-binding them together
+final_df <- do.call(rbind, transformed_dfs)
+
+# View the final dataframe
+head(final_df)
+
+```
+
+```{r, fig.width=40, fig.height=10}
+final_df %>%
+  ggplot(aes(x=cell_type_cluster, y=PropMean, color=PropMean.group))+
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2), size = 0.8) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = "bottom")
+```
+
+
+## ANOVA arcsin with FDR >0.05 filtered out
+
+```{r}
+MB.anova.arcsin %>% filter(FDR <= 0.05)
+```
+Note that the p-values are smaller here than before because we have specified
+a pairing vector that states which samples were bootstrapped and which are the 
+original samples.
+
+If we were interested in testing only 10x versus DropSeq we could alternatively
+use the propeller.ttest function and specify a contrast that tests for this
+comparison with our design matrix.
+
+## ANOVA arcsin with p >0.05 filtered out
+
+```{r}
+MB.anova.arcsin %>% filter(P.Value <= 0.05)
+```
+
+```{r}
+MB.anova.arcsin %>% filter(P.Value <= 0.05) -> MB.anova.arcsin.p
+clusters<-rownames(MB.anova.arcsin.p)
+MB.anova.arcsin.p <- cbind(clusters,MB.anova.arcsin.p)
+MB.anova.arcsin.p
+```
+
+# write xlsx
+
+```{r}
+write_xlsx(MB.anova.arcsin.p, path = "/mnt/sequence/home/biederman/250512_propeller_anova_arcsin_sig_p.xlsx")
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+

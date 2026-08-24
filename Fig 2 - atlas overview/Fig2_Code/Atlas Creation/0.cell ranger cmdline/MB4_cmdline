@@ -1,0 +1,1 @@
+cellranger count --jobmode=/data/10x/processing/slurm.template --id MB4_count --fastqs /data/FastQ/211022_NB501387_0477_AHKJJGBGXK/JS14_MB4/outs/fastq_path/,/data/FastQ/220316_NB501387_0530_AHJGFCBGXL/MB4_MH30_MH31/outs/fastq_path/ --sample MB4 --transcriptome /data/genomes/10x/GRCz11.Ensembl.103/

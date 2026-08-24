@@ -1,0 +1,96 @@
+---
+title: "Venn Diagram between LRT and pairwise"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+```  
+
+# Read in response group info
+```{r}
+response_groups <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260219_LRT_response_groups.csv") 
+```
+
+# Read in pairwise DEGs
+```{r}
+pairwise <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260129_short_cell_type_cluster_v2_0_pairwise_DE_from_250113.csv")
+```
+
+
+# VennDiagram of genes and times
+## Reshape data - pairwise
+```{r}
+DE_Venn_df <- pairwise %>% dplyr::select(c("gene","short_cell_type_cluster", "time")) %>% unique.data.frame() %>% tidyr::unite("gene", "short_cell_type_cluster", col="gene_celltype", sep = "_") %>%
+  group_by(time) %>% nest(gene_celltype) %>% column_to_rownames(var = "time")
+DE_Venn_list <- NULL
+for (t in rownames(DE_Venn_df)) {
+  DE_Venn_list <- c(DE_Venn_list, list(unlist(DE_Venn_df[t, "data"], use.names = FALSE))) # unlist turns it into just a character vector so list is required for it to append correctly. Omitting both results in a list with too many levels
+}
+names(DE_Venn_list) <- rownames(DE_Venn_df)
+```
+## Reshape data - LRT
+```{r}
+DE_LRT_df <- response_groups %>%
+  group_by(response_groups) %>% nest(gene_cluster) %>% column_to_rownames(var = "response_groups")
+DE_LRT_list <- NULL
+for (t in rownames(DE_LRT_df)) {
+  DE_LRT_list <- c(DE_LRT_list, list(unlist(DE_LRT_df[t, "data"], use.names = FALSE))) # unlist turns it into just a character vector so list is required for it to append correctly. Omitting both results in a list with too many levels
+}
+names(DE_LRT_list) <- rownames(DE_LRT_df)
+```
+# Combine lists
+```{r}
+DE_list <- c(DE_Venn_list, DE_LRT_list)
+```
+
+# Make the upset plot
+```{r, fig.width=20, fig.height=12}
+DE_upset_plot <- plot_upset(Venn(DE_list), nintersects = 50, order.set.by = "name")
+DE_upset_plot
+```
+
+# What about simple overlap between the two sets
+## Get lists of unique DEG:cluster pairs for both
+```{r}
+LRT_gene_cluster <- response_groups %>% dplyr::select(gene_cluster) %>% unique() %>% unlist()
+pairwise_gene_cluster <- pairwise %>% dplyr::select(gene, short_cell_type_cluster) %>% 
+  tidyr::unite("gene", "short_cell_type_cluster", col="gene_celltype", sep = "_") %>% unique() %>% unlist()
+```
+# Plot the overlap
+```{r}
+LRT_pairwise_comparison_venn <- ggVennDiagram(list("LRT" = LRT_gene_cluster, "Pairwise" = pairwise_gene_cluster), label_alpha = 0, 
+                                  label = "count",
+                                  label_size = 4) + 
+  scale_fill_gradient(low = "#FFDDFF", high = "#FF66CC") +
+  theme(legend.position = "none", text = element_text(size = 8, family = "sans")) +
+  scale_x_continuous(expand = expansion(mult = .2))
+LRT_pairwise_comparison_venn
+```
+```{r}
+save_plot("260608_pairwise_LRT_DEG_cluster_venn.png", LRT_pairwise_comparison_venn)
+save_plot("260608_pairwise_LRT_DEG_cluster_venn.svg", LRT_pairwise_comparison_venn)
+```
+# Session info
+```{r}
+sessionInfo()
+```
+
+
+

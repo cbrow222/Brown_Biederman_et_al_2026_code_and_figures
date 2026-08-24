@@ -1,0 +1,224 @@
+---
+title: "Pairwise DE figure work"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+``` 
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Load pairwise DE results
+```{r}
+pairwise_full <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260129_short_cell_type_cluster_v2_0_pairwise_DE_from_250113.csv")
+```
+
+# Filter to just comparisons to unfed
+```{r}
+pairwise_full <- filter(pairwise_full, time %in% c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF"))
+```
+
+
+# Get unique pairwise genes
+```{r}
+genes <- pairwise_full %>% select("gene") %>% unique() %>% unlist()
+```
+
+# Get average expression levels for pairwise genes in all clusters
+```{r}
+avg_exp <- AverageExpression(atlas, group.by = c("short_cell_type_cluster", "sample_name"), assay = "RNA", features = genes)
+```
+# Restructure avg_exp so that I can combine with LRT
+```{r}
+avg_exp_df <- as.data.frame(avg_exp[["RNA"]]) %>% 
+  rownames_to_column(var = "gene") %>%
+  pivot_longer(cols = 2:4023, values_to = "expression", names_to = "cluster_sample") %>%
+  separate_wider_delim(cols = "cluster_sample", delim = "_", names = c("cluster", "sample")) %>%
+  pivot_wider(names_from = "sample", values_from = "expression")
+```
+
+
+# Combine to filter the average expression to relvant rows
+```{r}
+pairwise_tags <- select(pairwise_full, c("gene", "short_cell_type_cluster"))
+heatmap_data <- left_join(pairwise_tags, avg_exp_df, by = c("gene" = "gene", "short_cell_type_cluster" = "cluster"))
+```
+
+# Create matrix with gene_cluster as rownames and expression as the data
+```{r}
+heatmap_matrix <- tidyr::unite(heatmap_data, "gene":"short_cell_type_cluster", col="gene_celltype", sep = "_") %>% unique() %>% relocate(`t3-sample9-60HF`, .after = `t2-sample8-30HF`)  %>% remove_rownames() %>% column_to_rownames(var = "gene_celltype") %>% as.matrix()
+```
+
+```{r}
+time_colors <- c("unfed" = "hotpink1",  "15min" = "orange", "30min" = "yellow2", "1h" = "lightgreen", "2h" = "steelblue1", "4h" = "mediumpurple1")
+sample_times_info <- c("unfed", "unfed", "unfed", "15min", "15min", "15min", "30min", "30min", "1h", "1h", "1h", "2h", "2h", "4h", "4h")
+sample_times <- data.frame(condition = sample_times_info, row.names = colnames(heatmap_matrix))
+```
+
+# Create tagging system for DE times
+```{r}
+DE_time_tags <- pairwise_full %>% dplyr::select(c("gene","short_cell_type_cluster", "time")) %>%
+  tidyr::unite("gene":"short_cell_type_cluster", col="gene_celltype", sep = "_") %>%
+  unique() %>% group_by(gene_celltype)
+DE_time_tags$time <- DE_time_tags$time %>% str_remove(".t0-UF")
+DE_time_tags <- DE_time_tags %>% nest("time") %>% rowwise() %>%
+  mutate(times = list(unlist(data, use.names = FALSE))) %>% 
+  mutate(times = paste(times, collapse = ", ")) %>%
+  select(!"data") %>% column_to_rownames(var = "gene_celltype")
+```
+
+```{r}
+comparison_colors <- c("t1-15HF" = "khaki2", 
+                       "t1-15HF, t2-30HF" = "maroon", 
+                       "t1-15HF, t2-30HF, t3-60HF" = "orchid1", 
+                       "t1-15HF, t2-30HF, t3-60HF, t4-120HF" = "deeppink1", 
+                       "t1-15HF, t2-30HF, t3-60HF, t4-120HF, t5-240HF" = "blue1", 
+                       "t1-15HF, t2-30HF, t4-120HF" = "steelblue4",
+ "t1-15HF, t3-60HF" = "darkturquoise",
+ "t1-15HF, t3-60HF, t4-120HF" = "green1",
+ "t1-15HF, t3-60HF, t4-120HF, t5-240HF" = "yellow4",
+ "t1-15HF, t3-60HF, t5-240HF" = "yellow3", 
+ "t1-15HF, t4-120HF" = "darkorange4",
+ "t1-15HF, t4-120HF, t5-240HF" = "brown", 
+ "t1-15HF, t5-240HF" = "#6A3D9A", 
+ "t2-30HF" = "dodgerblue2", 
+ "t2-30HF, t3-60HF" = "#E31A1C", 
+ "t2-30HF, t3-60HF, t4-120HF" = "green4", 
+ "t2-30HF, t4-120HF" = "#FF7F00", 
+ "t2-30HF, t5-240HF" = "black", 
+ "t3-60HF" = "gold1", 
+ "t3-60HF, t4-120HF" = "skyblue2", 
+ "t3-60HF, t4-120HF, t5-240HF" = "#FB9A99", 
+ "t3-60HF, t5-240HF" = "palegreen2", 
+ "t4-120HF" = "#CAB2D6", 
+ "t4-120HF, t5-240HF" = "#FDBF6F", 
+ "t5-240HF" = "gray70")
+```
+
+# Make heatmap
+```{r, fig.height=10, fig.width=4.75}
+h1 <- pheatmap(heatmap_matrix, scale = "row",  cluster_cols = FALSE, show_rownames = FALSE, annotation_col = sample_times, annotation_colors = list(condition = time_colors, times = comparison_colors), annotation_row = DE_time_tags, fontsize = 6)
+```
+```{r}
+save_plot("260624_pairwise_DE_expression_heatmap.png", h1, base_height = 10, base_width = 4.75)
+save_plot("260624_pairwise_DE_expression_heatmap.svg", h1, base_height = 10, base_width = 4.75)
+```
+
+# VennDiagram of genes and times
+## Reshape data
+```{r}
+DE_Venn_df <- pairwise_full %>% select(c("gene", "time")) %>% unique() %>%
+  group_by(time) %>% nest(gene) %>% column_to_rownames(var = "time")
+DE_Venn_list <- NULL
+for (t in rownames(DE_Venn_df)) {
+  DE_Venn_list <- c(DE_Venn_list, list(unlist(DE_Venn_df[t, "data"], use.names = FALSE))) # unlist turns it into just a character vector so list is required for it to append correctly. Omitting both results in a list with too many levels
+}
+names(DE_Venn_list) <- rownames(DE_Venn_df)
+DE_Venn_list <- DE_Venn_list[c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF")]
+```
+```{r, fig.width=3, fig.height=2}
+DE_Venn_plot <- ggVennDiagram(DE_Venn_list, label_alpha = 0, 
+                                  label = "count",
+                                  label_size = 3, edge_size = 0.5) + 
+  scale_fill_gradient(low = "#FFFFFF", high = "#FF66CC", trans = "sqrt") +
+  theme(legend.position = "none", text = element_text(family = "sans", size = 6)) +
+  scale_x_continuous(expand = expansion(mult = .4))
+DE_Venn_plot
+```
+I bet I can move these in Illustrator
+```{r}
+save_plot("260624_pairwise_gene_overlap_venn.svg", DE_Venn_plot, base_width = 3, base_height = 2)
+```
+# Get genes per cluster
+```{r}
+times <- c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF", "overall")
+celltypes <- unique(atlas$short_cell_type_cluster)
+celltypes <- str_replace_all(celltypes, "_", "-")
+genes_per_cluster <- data.frame(matrix(ncol=length(times), nrow = length(celltypes)))
+colnames(genes_per_cluster) <- times
+row.names(genes_per_cluster) <- celltypes
+
+for (t in times){
+  if (t == "overall"){
+    for (ct in celltypes){
+      DE_genes_cluster <- filter(pairwise_full, short_cell_type_cluster == ct) %>% select(gene) %>% unique()
+      genes_per_cluster[ct, t] <- length(DE_genes_cluster$gene)
+    }
+  }
+  else {
+    DE_genes_time <- filter(pairwise_full, time == t)
+    genes_per_cluster_time <- as.data.frame(table(DE_genes_time$short_cell_type_cluster))
+    for (ct in celltypes){
+      if (ct %in% genes_per_cluster_time$Var1){
+        genes_per_cluster[ct, t] <- genes_per_cluster_time$Freq[genes_per_cluster_time$Var1==ct]
+      }
+    }
+  }
+}
+genes_per_cluster[is.na(genes_per_cluster)] <- 0
+```
+
+# Identify time at which each cluster has the max DEGs
+```{r}
+times_list <- c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF")
+genes_per_cluster_max <- genes_per_cluster %>% rowwise() %>% 
+  mutate(Top_time = times_list[which.max(c_across(`t1-15HF.t0-UF`:`t5-240HF.t0-UF`))])
+genes_per_cluster_max$celltype <- row.names(genes_per_cluster)
+```
+
+# Get system info and add to genes per cluster
+```{r}
+annotation_data <- atlas@meta.data %>% group_by(short_cell_type_cluster) %>% 
+  select(c(short_cell_type_cluster, system)) %>% unique()
+annotation_data$short_cell_type_cluster <- str_replace_all(annotation_data$short_cell_type_cluster, "_", "-")
+genes_per_cluster_max <- left_join(genes_per_cluster_max, annotation_data, by = c("celltype" = "short_cell_type_cluster"))
+```
+
+# Get summary table of counts for each system and top time
+```{r}
+top_time_summary <- genes_per_cluster_max %>% group_by(Top_time, system) %>% summarise(Count = n())
+```
+```{r}
+system_colors <- c("connective tissue" = "#22FAFC", "sensory" = "#FB00FB", "musculoskeletal" = "#E6E90D", "digestive" = "#4B4D53", "transporter" = "#EE2200", "nervous" = "#267CFE", "integumentary" = "#FF7EAD", "cardiovascular" = "#00FB7E", "respiratory" = "#F5960D", "neural crest" = "#DCA3FB", "unknown" = "#FFDCBB", "endocrine" = "#407C0D", "immune" = "#0D85BA", "pronephric" = "#7C420D")
+time_colors <- c("t1-15HF.t0-UF" = "orange", "t2-30HF.t0-UF" = "yellow2", "t3-60HF.t0-UF" = "lightgreen", "t4-120HF.t0-UF" = "steelblue1", "t5-240HF.t0-UF" = "mediumpurple1")
+```
+
+# Plot with systems on x axis and colors by time
+```{r, fig.width=3.5, fig.height=2.25}
+most_responsive_time_plot <-  ggplot(top_time_summary, aes(x = system, y = Count, fill = Top_time)) +
+  geom_bar(position = "fill", stat = "identity") + theme_minimal() + 
+  labs(x = "System", y = "Proportion of Clusters", fill = "Comparison with\nmost DEGs")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), text = element_text(family = "sans", size = 8), legend.key.size = unit(0.125, "in")) +
+  scale_fill_manual(values = time_colors)
+most_responsive_time_plot
+```
+# Save plot
+```{r}
+save_plot("260624_Pairwise_most_responsive_time_by_system_plot.png", most_responsive_time_plot, base_height = 2.25, base_width = 3)
+save_plot("260624_Pairwise_most_responsive_time_by_system_plot.svg", most_responsive_time_plot, base_height = 2.25, base_width = 3)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

@@ -1,0 +1,102 @@
+---
+title: "DE figure updates/fixes"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+``` 
+```{r, message=FALSE}
+library(ggmagnify)
+```
+
+
+# REad in LRT results
+```{r}
+LRT <- read.csv("Z:/Labs/Farber_Lab/Farber_Lab_Public/snRNA-seq/atlas paper figures/Sup Data - DEGs LRT and pairwise/251211_DESeq_LRT_all_times_filtered_DE_results.csv")
+```
+
+# Get counts of clusters for each gene
+```{r}
+gene_Cluster_info <- LRT %>% group_by(gene) %>% summarise(Count = n())
+```
+
+# plot the histogram
+```{r, fig.width=3.25, fig.height=1.75}
+gene_count_hist = ggplot(gene_Cluster_info, aes(x = Count)) + geom_histogram(binwidth = 1, boundary = 0) +
+  labs(x = "Number of Clusters a LRT DEG is Identified In", y = "Number of Genes") + theme_minimal() + 
+  theme(text = element_text(family = "sans", size = 7))
+hist_inset <- gene_count_hist + theme(plot.background = element_rect(fill = "white", colour = NA), axis.title = element_blank(), panel.grid.minor = element_blank()) + scale_x_continuous(breaks = c(50, 100, 150)) 
+hist_with_inset <- gene_count_hist + geom_magnify(from = c(xmin = 40, xmax = 150, ymin = 0.1, ymax = 5), to = c(xmin = 29, xmax = 152, ymin = 300, ymax = 2300), axes = "y", plot = hist_inset) + scale_y_sqrt(breaks = c(0, 10, 50, 100, 500, 1000, 2000), labels = c(0, 10, 50, 100, 500, 1000, 2000)) 
+hist_with_inset
+```
+```{r}
+save_plot("260623_Cluster_genes_histogram_sqrt_scale.png", hist_with_inset, base_height = 1.75, base_width = 3.25)
+save_plot("260623_Cluster_genes_histogram_sqrt_scale.svg", hist_with_inset, base_height = 1.75, base_width = 3.25)
+```
+
+# Finding good example genes for each response group
+## Read in atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+```{r}
+response_groups <- read_csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260219_LRT_response_groups.csv")
+```
+## I can get genes for all clusters from EnteroAnte-2 so I'm going to subset that out
+```{r}
+aEC2 <- subset(atlas, short_cell_type_cluster == "EnteroAnte_2")
+```
+
+# Making a figure of these 6 options - in ggviolin so I have more control
+## Make the data frame
+```{r}
+vln_df_nupr = data.frame(expression = aEC2[["RNA"]]@data["nupr1b",], condition = aEC2$condition, gene = "nupr1b")
+vln_df_flvcr1 = data.frame(expression = aEC2[["RNA"]]@data["flvcr1",], condition = aEC2$condition, gene = "flvcr1")
+vln_df_apoa4a = data.frame(expression = aEC2[["RNA"]]@data["apoa4a",], condition = aEC2$condition, gene = "apoa4a")
+vln_df_lpin2 = data.frame(expression = aEC2[["RNA"]]@data["lpin2",], condition = aEC2$condition, gene = "lpin2")
+vln_df_nocta = data.frame(expression = aEC2[["RNA"]]@data["nocta",], condition = aEC2$condition, gene = "nocta")
+vln_df_slc26a6.1 = data.frame(expression = aEC2[["RNA"]]@data["slc26a6.1",], condition = aEC2$condition, gene = "slc26a6.1")
+vln_df_examples <- rbind(vln_df_nupr, vln_df_flvcr1, vln_df_apoa4a, vln_df_lpin2, vln_df_nocta, vln_df_slc26a6.1)
+```
+## Make the gene a factor with the correct levels
+```{r}
+vln_df_examples$gene <- factor(vln_df_examples$gene, levels = c("nupr1b", "flvcr1", "apoa4a", "lpin2", "nocta", "slc26a6.1"))
+```
+
+```{r, fig.width=2.75, fig.height=5.5}
+examples_vln <- ggplot(vln_df_examples, aes(x = condition, y = expression)) + 
+  geom_violin(aes(fill = condition), trim=TRUE, scale = "width") + 
+  geom_jitter(color = "black", size = 0.01) + facet_wrap(~gene, ncol = 1) +
+  labs(y = "Expression Level") +
+  scale_x_discrete(name = "Condition") + scale_fill_manual(values = c("hotpink1","orange","yellow2", "lightgreen",  "steelblue1", "mediumpurple1")) + theme_minimal() + theme(legend.position = "none", text = element_text(size = 7, family = "sans"), axis.text.x = element_text(angle=45, hjust = 1), strip.text = element_text(hjust = 0.5, face = "bold", size = 8), axis.title = element_text(size = 8))
+examples_vln
+```
+```{r}
+save_plot("260623_LRT_response_group_example_violins.png", examples_vln, base_height = 5.5, base_width = 2.75)
+save_plot("260623_LRT_response_group_example_violins.svg", examples_vln, base_height = 5.5, base_width = 2.75)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

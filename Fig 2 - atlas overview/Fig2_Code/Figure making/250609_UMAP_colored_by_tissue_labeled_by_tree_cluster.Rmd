@@ -1,0 +1,265 @@
+---
+title: "MB4-MB26v2.0 UMAP tests"
+author: "Michelle Biederman"
+date: "6/9/25"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+  html_document:
+    toc: true
+    df_print: paged
+---
+
+# Purpose
+
+Try to color by tissue but label by tree cluster
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+# Loaded libraries
+
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(RColorBrewer)
+library(cowplot)
+library(tidyverse)
+library(writexl)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# getting ggplot default colors
+
+```{r}
+library(scales)
+colors <- hue_pal()(14)
+colors
+```
+
+# Load data
+
+```{r}
+MB.combined <- readRDS("250522_atlas_v2_0.rds")
+MB.combined
+```
+
+# Check metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# color by tissue, label by v2.0 clusters
+
+```{r,fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", label=FALSE, raster=TRUE) + theme(legend.position = "none")
+plot
+```
+
+```{r}
+plot$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot <- LabelClusters(plot, id = "tree_clusters") + theme(legend.position = "right")
+plot
+```
+
+# color by tissue, label by v1.5 clusters
+
+```{r,fig.height=20, fig.width=20}
+plot2 <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", label=FALSE, raster=TRUE) + theme(legend.position = "none")
+plot2
+```
+
+```{r}
+plot2$data$seurat_clusters <- MB.combined@meta.data$seurat_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot2 <- LabelClusters(plot2, id = "seurat_clusters") + theme(legend.position = "right")
+plot2
+```
+
+# color by tissue, label by v2.0 clusters
+
+```{r}
+my_cols <- c("bile duct" = "#FB0D16", "blood" = "#26FE0D", "bone" = "#000DFE", "cartilage" = "#F8CACE", "CNS" = "#FF00DF", "digestive general" = "#0DFEE3", "endocrine pancreas" = "#F3E600", "enteric" = "#F2861C", "epidermis" = "#0D4D80", "epithelium" = "#1C560D", "esophagus" = "#AF0058", "exocrine pancreas" = "#D189FF", "eye" = "#AEF498", "fin" = "#7F2270", "gill" = "#7A3B00", "glia" = "#0DD2FD", "heart" = "#83AFB1", "interrenal gland" = "#2695F9", "intestine" = "#A79B49", "ionocyte" = "#FE8FC9", "kidney" = "#DE16FF", "lateral line" = "#BBC1FF", "liver" = "#FE0081", "meningeal" = "#CF352A", "mesenchyme" = "#F9978E", "muscle" = "#5526AC", "neuroendocrine" = "#785D60", "neuron" = "#FABD4B", "olfactory" = "#BBF41C", "otic" = "#00FDA3", "periderm" = "#FA16AE", "pigment" = "#D9E7C2", "PNS" = "#B20DB2", "stromal" = "#3DAF80", "taste" = "#0DAA00", "unknown" = "#FAB7FE", "unspecified" = "#A751FF", "vasculature" = "#689200")
+```
+
+```{r,fig.height=20, fig.width=20}
+plot3 <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", label=FALSE, raster=TRUE, cols = my_cols) + theme(legend.position = "none")
+plot3
+```
+
+```{r}
+plot3$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot3 <- LabelClusters(plot3, id = "tree_clusters") +
+  theme(legend.position = "right") +
+  theme(legend.text=element_text(size=14)) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+plot3
+```
+
+# my_cols2 color by tissue, label by v2.0 clusters
+
+```{r}
+my_cols2 <- c("bile duct" = "#F80D16", "blood" = "#0DFF0D", "bone" = "#1600FA", "cartilage" = "#FCD1D4", "CNS" = "#FB0DDC", "digestive general" = "#0DFDE1", "endocrine pancreas" = "#EEE700", "enteric" = "#EC8400", "epidermis" = "#0071A0", "epithelium" = "#005600", "esophagus" = "#9F1656", "exocrine pancreas" = "#D38EFD", "eye" = "#A7F693", "fin" = "#7C530D", "gill" = "#703D6E", "glia" = "#FF1C84", "heart" = "#BCEAF9", "interrenal gland" = "#D500FB", "intestine" = "#FD96D9", "ionocyte" = "#4598FF", "kidney" = "#FDCF86", "lateral line" = "#C62E16", "liver" = "#FD9994", "meningeal" = "#8A9500", "mesenchyme" = "#777E76", "muscle" = "#5138A7", "neuroendocrine" = "#A00094", "neuron" = "#00DCFE", "olfactory" = "#CEB0E4", "otic" = "#D0E9C3", "periderm" = "#F742AE", "pigment" = "#A7F90D", "PNS" = "#0D9886", "stromal" = "#00FC8A", "taste" = "#92380D", "unknown" = "#B2687D", "unspecified" = "#A158F7", "vasculature" = "#A3B3FE")
+```
+
+```{r,fig.height=20, fig.width=20}
+plot3a <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", label=FALSE, raster=TRUE, cols = my_cols2) + theme(legend.position = "none")
+plot3a
+```
+
+```{r}
+plot3a$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot3a <- LabelClusters(plot3a, id = "tree_clusters") +
+  theme(legend.position = "right") +
+  theme(legend.text=element_text(size=14)) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+plot3a
+```
+
+# color by system, label by v2.0 clusters
+
+```{r,fig.height=20, fig.width=20}
+plot4 <- DimPlot(MB.combined, reduction = "umap", group.by = "system", label=FALSE, raster=TRUE) + theme(legend.position = "none")
+plot4
+```
+
+```{r}
+plot4$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot4 <- LabelClusters(plot4, id = "tree_clusters") + theme(legend.position = "right")
+plot4
+```
+
+# my_cols3 color by system, label by v2.0 clusters
+
+```{r}
+my_cols3 <- c("connective tissue" = "#22FAFC", "sensory" = "#FB00FB", "musculoskeletal" = "#E6E90D", "digestive" = "#4B4D53", "transporter" = "#EE2200", "nervous" = "#267CFE", "integumentary" = "#FF7EAD", "cardiovascular" = "#00FB7E", "respiratory" = "#F5960D", "neural crest" = "#DCA3FB", "unknown" = "#FFDCBB", "endocrine" = "#407C0D", "immune" = "#0D85BA", "pronephric" = "#7C420D")
+```
+
+```{r,fig.height=20, fig.width=20}
+plot4a <- DimPlot(MB.combined, reduction = "umap", group.by = "system", label=FALSE, raster=TRUE, cols = my_cols3) + theme(legend.position = "none")
+plot4a
+```
+
+```{r}
+plot4a$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot4a <- LabelClusters(plot4a, id = "tree_clusters") +
+  theme(legend.position = "right") +
+  theme(legend.text=element_text(size=20)) +
+  guides(color = guide_legend(override.aes = list(size = 8)))
+plot4a
+```
+
+# my_cols4 color by system, label by v2.0 clusters
+
+https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
+```{r}
+my_cols4 <- c("cardiovascular" = "dodgerblue2", "connective tissue" = "tomato", "digestive" = "greenyellow", "endocrine" = "purple2", "immune" = "orange", "integumentary" = "gold1", "musculoskeletal" = "#FB9A99", "nervous" = "seagreen3", "neural crest" = "tan3", "pronephric" = "orchid3", "respiratory" = "deeppink1", "sensory" = "deepskyblue", "transporter" = "cyan2", "unknown" = "olivedrab")
+```
+
+```{r,fig.height=20, fig.width=20}
+plot4b <- DimPlot(MB.combined, reduction = "umap", group.by = "system", label=FALSE, raster=TRUE, cols = my_cols4, alpha = .5) + theme(legend.position = "none")
+plot4b
+```
+
+```{r}
+plot4b$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot4b <- LabelClusters(plot4b, id = "tree_clusters") +
+  theme(legend.position = "right") +
+  theme(legend.text=element_text(size=20)) +
+  guides(color = guide_legend(override.aes = list(size = 8)))
+plot4b
+```
+
+# my_cols4 color by system, label by v2.0 clusters
+
+```{r}
+my_cols5 <- c("cardiovascular" = "orange", "connective tissue" = "limegreen", "digestive" = "tomato", "endocrine" = "greenyellow", "immune" = "deeppink1", "integumentary" = "gold1", "musculoskeletal" = "orchid3", "nervous" = "deepskyblue", "neural crest" = "seagreen1", "pronephric" = "tan3", "respiratory" = "cyan1", "sensory" = "dodgerblue3", "transporter" = "purple2", "unknown" = "#FB9A99")
+```
+
+"cardiovascular" = , "connective tissue" = "tomato", "digestive" = "greenyellow", "endocrine" = "purple2", "immune" = "orange", "integumentary" = "gold1", "musculoskeletal" = "#FB9A99", "nervous" = "seagreen3", "neural crest" = "tan3", "pronephric" = "orchid3", "respiratory" = "deeppink1", "sensory" = "deepskyblue", "transporter" = "cyan2", "unknown" = "olivedrab"
+
+```{r,fig.height=20, fig.width=20}
+plot4c <- DimPlot(MB.combined, reduction = "umap", group.by = "system", label=FALSE, raster=TRUE, cols = my_cols5, alpha = .5) + theme(legend.position = "none")
+plot4c
+```
+
+```{r}
+plot4c$data$tree_clusters <- MB.combined@meta.data$tree_clusters
+```
+
+```{r,fig.height=15, fig.width=18}
+plot4c <- LabelClusters(plot4c, id = "tree_clusters") +
+  theme(legend.position = "right") +
+  theme(legend.text=element_text(size=20)) +
+  guides(color = guide_legend(override.aes = list(size = 8)))
+plot4c
+```
+
+# color by v2.0 tree clusters, label by v1.5 seurat clusters
+
+```{r,fig.height=20, fig.width=20}
+plot5 <- DimPlot(MB.combined, reduction = "umap", group.by = "tree_clusters", label=FALSE, raster=TRUE) + theme(legend.position = "none")
+plot5
+```
+
+```{r}
+plot5$data$seurat_clusters <- MB.combined@meta.data$seurat_clusters
+```
+
+```{r,fig.height=15, fig.width=25}
+plot5 <- LabelClusters(plot5, id = "seurat_clusters") + theme(legend.position = "right")
+plot5
+```
+
+# save UMAPs
+
+```{r}
+save_plot("250609_colored_by_tissue_labeled_by_cluster.png", plot, base_height = 15, base_width = 18)
+save_plot("250609_colored_by_tissue_labeled_by_cluster.svg", plot, base_height = 15, base_width = 18)
+save_plot("250609_my_cols_colored_by_tissue_labeled_by_cluster.png", plot3, base_height = 15, base_width = 18)
+save_plot("250609_my_cols_colored_by_tissue_labeled_by_cluster.svg", plot3, base_height = 15, base_width = 18)
+save_plot("250609_my_cols2_colored_by_tissue_labeled_by_cluster.png", plot3a, base_height = 15, base_width = 18)
+save_plot("250609_my_cols2_colored_by_tissue_labeled_by_cluster.svg", plot3a, base_height = 15, base_width = 18)
+save_plot("250609_colored_by_system_labeled_by_cluster.png", plot4, base_height = 15, base_width = 18)
+save_plot("250609_colored_by_system_labeled_by_cluster.svg", plot4, base_height = 15, base_width = 18)
+save_plot("250609_my_cols3_colored_by_system_labeled_by_cluster.png", plot4a, base_height = 15, base_width = 18)
+save_plot("250609_my_cols3_colored_by_system_labeled_by_cluster.svg", plot4a, base_height = 15, base_width = 18)
+save_plot("250609_my_cols4_colored_by_system_labeled_by_cluster.png", plot4b, base_height = 15, base_width = 18)
+save_plot("250609_my_cols4_colored_by_system_labeled_by_cluster.svg", plot4b, base_height = 15, base_width = 18)
+save_plot("250609_my_cols5_colored_by_system_labeled_by_cluster.png", plot4c, base_height = 15, base_width = 18)
+save_plot("250609_my_cols5_colored_by_system_labeled_by_cluster.svg", plot4c, base_height = 15, base_width = 18)
+save_plot("250609_colored_by_tree_cluster_labeled_by_seurat_cluster.png", plot5, base_height = 15, base_width = 25)
+save_plot("250609_colored_by_tree_cluster_labeled_by_seurat_cluster.svg", plot5, base_height = 15, base_width = 25)
+```
+
+# session info
+
+```{r}
+sessionInfo()
+```
+

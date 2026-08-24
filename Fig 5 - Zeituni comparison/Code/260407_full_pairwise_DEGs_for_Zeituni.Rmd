@@ -1,0 +1,64 @@
+---
+title: "I forgot the full DEG list for Colin"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(DESeq2)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Load full pairwise DEGs
+```{r}
+pairwise <- read.csv("260209_pairwise_v2_short_cell_type_cluster_DEGs_from_250113.csv")
+```
+
+# Load atlas
+```{r}
+atlas <- readRDS("/mnt/sequence/home/cbrown/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+# Filter to comparisions to unfed
+```{r}
+pairwise <- filter(pairwise, time %in% c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF"))
+```
+
+# Get just the subset of cells I care about
+```{r}
+Zeituni_set <- subset(atlas, (tissue %in% c("enteric", "intestine", "digestive general", "liver", "bile duct", "exocrine pancreas", "endocrine pancreas", "esophagus")) | (tree_clusters == "99"))
+```
+
+# Get list of short_cell_type_clusters that matter
+```{r}
+Zeituni_cell_types <- unique(Zeituni_set$short_cell_type_cluster) %>% 
+  str_replace_all("_", "-")
+```
+
+# Get DE results for just the Zeituni cell types
+```{r}
+Zeituni_DEGs <- filter(pairwise, short_cell_type_cluster %in% Zeituni_cell_types)
+```
+
+# Save
+```{r}
+write_csv(Zeituni_DEGs, "260407_full_pairwise_to_unfed_DEGs_for_clusters_in_Zeituni.csv")
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

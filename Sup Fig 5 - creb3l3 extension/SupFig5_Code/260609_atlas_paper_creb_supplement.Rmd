@@ -1,0 +1,61 @@
+---
+title: "Creb3l3 supplement figure panels"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+This notebook is a continuation of 260609_atlas_paper_creb3l3_figure_work. 
+
+# Full list of system colors
+```{r}
+full_system_colors <- c("connective tissue" = "#22FAFC", "sensory" = "#FB00FB", "musculoskeletal" = "#E6E90D", "digestive" = "#4B4D53", "transporter" = "#EE2200", "nervous" = "#267CFE", "integumentary" = "#FF7EAD", "cardiovascular" = "#00FB7E", "respiratory" = "#F5960D", "neural crest" = "#DCA3FB", "unknown" = "#FFDCBB", "endocrine" = "#407C0D", "immune" = "#0D85BA", "pronephric" = "#7C420D")
+```
+
+
+# Heatmap of all creb DEGs and clusters
+```{r, fig.height=10, fig.width=3.5}
+max_divided_heatmap_labels <- pheatmap(creb_matrix_max_divided, scale = "none", cluster_cols = TRUE, annotation_row = annotation_frame, annotation_colors = list(system = full_system_colors, direction = c("down" = "blue","up" = "red", "creb3l3" = "grey"), feed = c("both" = "purple", "creb3l3" = "grey", "unfed" = "hotpink1", "fed" = "steelblue1"), Expression_location = c("EnteroAnte" = "#C830CC", "Other creb3l3b" = "#E32D91", "Non-creb3l3 Expressing" = "#009999", "creb3l3" = "grey")), annotation_col = gene_annotations, color = colorRampPalette(brewer.pal(n = 7, name = "OrRd"))(100), fontsize = 6, treeheight_row = 6, treeheight_col = 2, show_rownames = FALSE, show_colnames = FALSE)
+max_divided_heatmap_labels
+```
+```{r}
+save_plot("260609_atlas_paper_creb3l3_all_DEGS_all_clusters_heatmap.svg", max_divided_heatmap_labels, base_height = 10, base_width = 3.5)
+```
+
+# Plot creb3l3 levels in clusters
+## Get just creb3l3 paralogs from the matrix
+```{r}
+creb_expression <- creb_target_matrix_full[c("creb3l3a", "creb3l3b"),] %>% t() %>% as.data.frame() %>% arrange(desc(creb3l3b)) %>% rownames_to_column(var = "Cluster")
+creb_expression$Cluster <- factor(creb_expression$Cluster, levels = creb_expression$Cluster)
+creb_expression <- creb_expression %>% pivot_longer(cols = c(creb3l3a, creb3l3b), names_to = "Paralog", values_to = "Expression")
+```
+
+# Plot it
+```{r, fig.height=10, fig.width=3.5}
+lvls <- levels(creb_expression$Cluster)
+creb_expression_by_cluster <- ggplot(creb_expression, aes(y = Cluster, x = Expression, colour = Paralog)) + geom_point() + scale_x_sqrt() +
+  geom_vline(xintercept = 0.7) + labs(x = "Expression Level (TP10K)", y = "Cluster") +
+  scale_y_discrete(breaks = lvls[seq(1, length(lvls), by = 2)]) +
+  theme_minimal() + theme(text = element_text(family = "sans", size = 8), axis.text.y = element_text(size = 6))
+creb_expression_by_cluster
+```
+```{r}
+save_plot("260609_creb_expression_levels_by_cluster_points.png", creb_expression_by_cluster, base_height = 10, base_width = 3.5)
+save_plot("260609_creb_expression_levels_by_cluster_points.svg", creb_expression_by_cluster, base_height = 10, base_width = 3.5)
+```
+# Session info
+```{r}
+sessionInfo()
+```
+
+
+
+
+
+
+
+
+
+

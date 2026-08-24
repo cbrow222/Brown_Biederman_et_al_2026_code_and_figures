@@ -1,0 +1,527 @@
+---
+title: "MB4-MB26v1.4 UMAPS and propeller for fig 2"
+author: "Michelle Biederman"
+date: "1/23/25"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+I need TIFFs of the plots for my figures.  Plotting in console to save.
+
+Adusted window so divide was under D of Debug in the menu above.
+
+# Load libpaths
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+```{r,message=FALSE}
+#if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+#BiocManager::install("svglite")
+```
+
+# Load the libraries
+
+```{r, message=FALSE}
+library(speckle, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(Seurat)
+library(CellBench, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(limma, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(ggplot2)
+library(scater, lib="/apps/R/4.3.2/osca/")
+library(patchwork)
+library(edgeR, lib="/apps/R/4.3.2/osca/")
+library(statmod, lib="/apps/R/4.3.2/osca/")
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(viridisLite)
+library(cowplot)
+library(tidyr)
+library(ape, lib="/apps/R/4.3.2/DESeq2")
+library(paletteer, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(prismatic, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Load data
+
+```{r}
+MB.combined <- readRDS("/mnt/sequence/home/biederman/230602_v1/filtered/250113_atlas_v1_4.rds")
+MB.combined
+```
+
+# Check metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Add short_cell_type_cluster to metadata
+
+```{r}
+MB.combined@meta.data <- unite(MB.combined@meta.data, short_cell_type_cluster, short_cell_type, seurat_clusters, sep = "_", remove = FALSE)
+head(MB.combined@meta.data)
+```
+
+# Add metadata columns for propeller
+
+```{r}
+MB.combined$cluster <- MB.combined$short_cell_type_cluster
+MB.combined$sample <- MB.combined$sample_name
+MB.combined$group <- MB.combined$condition
+```
+
+# check new metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Change Ident to cell_type_cluster
+
+```{r}
+Idents(MB.combined) <- "short_cell_type_cluster"
+```
+
+# Perform logit transformation
+
+The default of propeller is to perform the logit transformation:
+
+```{r}
+MB.prop.logit <- propeller(MB.combined)
+MB.prop.logit
+clusters <- rownames(MB.prop.logit)
+MB.prop.logit <- cbind(clusters, MB.prop.logit)
+MB.prop.logit
+```
+
+# Filter out false discovery rates > 0.05
+
+```{r}
+MB.prop.logit.f <- filter(MB.prop.logit,FDR <= 0.05)
+clusters <- rownames(MB.prop.logit.f)
+MB.prop.logit.f <- cbind(clusters, MB.prop.logit.f)
+MB.prop.logit.f
+```
+
+# Perform arcsin square root transformation
+
+```{r}
+MB.prop.arcsin <- propeller(MB.combined, transform="asin")
+MB.prop.arcsin
+```
+
+# Filter out false discovery rates > 0.05
+
+```{r}
+MB.prop.arcsin.f <- filter(MB.prop.arcsin,FDR <= 0.05)
+clusters <- rownames(MB.prop.arcsin.f)
+MB.prop.arcsin.f <- cbind(clusters, MB.prop.arcsin.f)
+MB.prop.arcsin.f
+```
+
+Another option for running propeller is for the user to supply the cluster, 
+sample and group information explicitly to the propeller function.
+
+# See which models best fit data variances
+
+If you are interested in seeing which models best fit the data in terms of the
+cell type variances, there are two plotting functions that can do this: 
+plotCellTypeMeanVar and plotCellTypePropsMeanVar. For this particular 
+dataset it isn't very informative because there are only three cell "types" 
+and no biogical variability.
+
+```{r,fig.height=5, fig.width=10}
+props.logit <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="logit")
+par(mfrow=c(1,1))
+MeanVar.logit.counts <- plotCellTypeMeanVar(props.logit$Counts)
+MeanVar.logit.props <- plotCellTypePropsMeanVar(props.logit$Counts)
+MeanVar.logit.counts
+MeanVar.logit.props
+```
+
+```{r,fig.height=5, fig.width=10}
+props.arcsin <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="logit")
+par(mfrow=c(1,1))
+plotCellTypeMeanVar(props.arcsin$Counts)
+plotCellTypePropsMeanVar(props.arcsin$Counts)
+```
+
+# Fitting linear models using the transformed proportions directly
+
+If you are like me, you won't feel very comfortable with a black-box approach 
+where one function simply spits out a table of results. If you would like to 
+have more control over your linear model and include extra covariates then you 
+can fit a linear model in a more direct way using the transformed proportions 
+that can be obtained by running the getTransformedProps function.
+
+We have already obtained the proportions and transformed proportions when we ran
+the getTransformedProps function above. This function outputs a list object 
+with three elements: Counts, TransformedProps and Proportions. These are 
+all matrices with clusters/cell types in the rows and samples in the columns.
+
+First we need to set up our sample information in much the same way we would if 
+we were analysing bulk RNA-seq data. We can pretend that we have pairing 
+information which corresponds to our original vs bootstrapped samples to make 
+our model a little more complicated for demonstration purposes. 
+
+# set up sample info
+
+```{r}
+group <- c("t0_UF","t0_UF","t0_UF","t1_15HF","t1_15HF","t1_15HF","t2_30HF","t2_30HF","t3_60HF","t3_60HF","t3_60HF","t4_120HF","t4_120HF","t5_240HF","t5_240HF")
+sampleMB <- c(1,2,3,1,2,3,1,2,1,2,3,1,2,1,2)
+mb.df <- data.frame(group,sampleMB)
+mb.df
+```
+
+# Design model matrix
+
+We can set up a design matrix taking into account group and pairing information.
+Please note that the way that propeller has been designed is such that the 
+group information is *always* first in the design matrix specification, and 
+there is NO intercept. If you are new to design matrices and linear modelling, I
+would highly recommend reading the r BiocStyle::Biocpkg("limma") manual, which
+is incredibly extensive and covers a variety of different experimental set ups.
+
+```{r}
+design <- model.matrix(~ 0 + group + sampleMB, data = mb.df, na.action)
+design
+```
+
+#ANOVA 
+
+In our example, we have three groups, 10x, CelSeq and DropSeq. In order to 
+perform an ANOVA to test for cell type composition differences between these
+3 technologies, we can use the propeller.anova function. The coef argument
+tells the function which columns of the design matrix correspond to the groups 
+we are interested in testing. Here we are interested in the first three columns.
+
+## ANOVA logit
+
+```{r}
+MB.anova.logit <- propeller.anova(prop.list=props.logit, design=design, coef = c(1,2,3,4,5,6), 
+                robust=TRUE, trend=FALSE, sort=TRUE)
+MB.anova.logit
+```
+
+## ANOVA logit with FDR >0.05 filtered out
+
+```{r}
+MB.anova.logit %>% filter(FDR <= 0.05)
+```
+
+## ANOVA arcsin
+
+```{r}
+MB.anova.arcsin <- propeller.anova(prop.list=props.arcsin, design=design, coef = c(1,2,3,4,5,6), 
+                robust=TRUE, trend=FALSE, sort=TRUE)
+MB.anova.arcsin
+```
+
+## ANOVA arcsin with FDR >0.05 filtered out
+
+```{r}
+MB.anova.arcsin %>% filter(FDR <= 0.05)
+```
+Note that the p-values are smaller here than before because we have specified
+a pairing vector that states which samples were bootstrapped and which are the 
+original samples.
+
+If we were interested in testing only 10x versus DropSeq we could alternatively
+use the propeller.ttest function and specify a contrast that tests for this
+comparison with our design matrix.
+
+# UMAP 
+
+https://www.evanpickett.com/blog/2016/10/19/r-ggsave-tiff-files-are-too-big
+ggsave("Fig 4a.tiff", plot = p4, width=600, height=450, units="mm", dpi=300, compression = "lzw")
+
+# New short cell type UMAP
+
+```{r, fig.height=10, fig.width=10}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type", label=TRUE, label.size = 1.9, repel = TRUE, raster=FALSE) + theme(legend.position = "none") +
+  labs(title = "Cell Types", size = 12) +
+  theme(plot.title = element_text(size=11))
+plot
+```
+
+```{r, fig.height=10, fig.width=10}
+plot2 <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type", label=TRUE, label.size = 1.9, repel = TRUE) + theme(legend.position = "none") +
+  labs(title = "Cell Types", size = 12) +
+  theme(plot.title = element_text(size=11))
+plot2
+```
+
+```{r, fig.height=10, fig.width=10}
+plot3 <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type", label=TRUE, label.size = 1.9, repel = TRUE,raster = TRUE, raster.dpi = c(1000, 1000)) + theme(legend.position = "none") +
+  labs(title = "Cell Types", size = 12) +
+  theme(plot.title = element_text(size=11))
+plot3
+```
+
+
+
+# save plot
+
+ggsave("Fig2_.tiff", plot = plot, width=60, height=60, units="mm", dpi=300, compression = "lzw")
+
+https://www.datanovia.com/en/blog/how-to-save-a-ggplot/
+
+Open a graphic device using one of the following functions:
+pdf(“r-graphics.pdf”),
+svg(“r-graphics.svg”),
+png(“r-graphics.png”),
+tiff(“r-graphics.tiff”),
+jpeg(“r-graphics.jpg”),
+and so on.
+Additional arguments indicating the width and the height (in inches) of the graphics region can be also specified in the mentioned function.
+
+Create and print a plot
+Close the graphic device using the function dev.off()
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_10x10.svg", plot, base_width=10, base_height=10)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_10x10_raster.svg", plot2, base_width=10, base_height=10)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_10x10_raster1000.svg", plot3, base_width=10, base_height=10)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_10x10.pdf", plot, base_width=10, base_height=10)
+```
+
+save_plot("250127_DE_overall_genes_diff_reg_per_cluster_DESeq_v1_4_sqrt_scale.svg", p6_overall, base_height = 10, base_width = 10)
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_40x40cm_300dpi.svg", plot = plot, base_width=40, base_height=40, units="cm", dpi=300)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_40x40cm_600dpi.svg", plot = plot, base_width=40, base_height=40, units="cm", dpi=600)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_50x50cm_600dpi.svg", plot = plot, base_width=50, base_height=50, units="cm", dpi=600)
+```
+
+```{r}
+#save_plot("250210_atlas_short_celltype_v1_4_60x60cm_600dpi.svg", plot = plot, base_width=60, base_height=60, units="cm", dpi=600)
+```
+
+# UMAPs Highlighted by condition
+
+## UF
+
+```{r, fig.height=20, fig.width=20}
+Idents(MB.combined) <- "condition"
+t0_UF.cells <-subset(MB.combined, idents = "t0_UF")
+```
+
+```{r, fig.height=10, fig.width=10}
+t0_UF.UMAP <- DimPlot(MB.combined,
+                      na.value = "grey10",
+                      reduction = "umap",
+                      label=FALSE,  
+                      raster=FALSE,
+                      cells.highlight = colnames(t0_UF.cells),
+                      cols.highlight = "hotpink1",
+                      sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("Unfed")
+t0_UF.UMAP
+```
+
+```{r}
+#rm(t0_UF.cells)
+#gc()
+```
+
+"t0_UF"    "t1_15HF"  "t2_30HF"  "t3_60HF"  "t4_120HF" ""
+
+## 15 min
+
+```{r}
+t1_15HF.cells <-subset(MB.combined, idents = "t1_15HF")
+```
+
+```{r, fig.height=10, fig.width=10}
+t1_15HF.UMAP <- DimPlot(MB.combined,
+                        na.value = "grey10",
+                        reduction = "umap",
+                        label=FALSE,
+                        raster=FALSE,
+                        cells.highlight = colnames(t1_15HF.cells),
+                        cols.highlight = "orange", 
+                        sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("15 min High Fat")
+t1_15HF.UMAP
+```
+
+```{r}
+#rm(t1_15HF.cells)
+#gc()
+```
+
+## 30 min
+
+```{r}
+t2_30HF.cells <-subset(MB.combined, idents = "t2_30HF")
+```
+
+```{r, fig.height=10, fig.width=10}
+t2_30HF.UMAP <- DimPlot(MB.combined, 
+                        na.value = "grey10",
+                        reduction = "umap",
+                        label=FALSE,
+                        raster=FALSE,
+                        cells.highlight = colnames(t2_30HF.cells),
+                        cols.highlight = "yellow2",
+                        sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("30 min High Fat")
+t2_30HF.UMAP
+```
+
+```{r}
+#rm(t2_30HF.cells)
+#gc()
+```
+
+## 60 min
+
+```{r}
+t3_60HF.cells <-subset(MB.combined, idents = "t3_60HF")
+```
+
+```{r, fig.height=10, fig.width=10}
+t3_60HF.UMAP <- DimPlot(MB.combined,
+                        na.value = "grey10",
+                        reduction = "umap",
+                        label=FALSE,  raster=FALSE,
+                        cells.highlight = colnames(t3_60HF.cells),
+                        cols.highlight = "lightgreen",
+                        sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("60 min High Fat")
+t3_60HF.UMAP
+```
+
+```{r}
+#rm(t3_60HF.cells)
+#gc()
+```
+
+## 2 hr
+
+```{r}
+t4_120HF.cells <-subset(MB.combined, idents = "t4_120HF")
+```
+
+```{r, fig.height=10, fig.width=10}
+t4_120HF.UMAP <- DimPlot(MB.combined, 
+                         na.value = "grey10",
+                         reduction = "umap",
+                         label=FALSE,
+                         raster=FALSE,
+                         cells.highlight = colnames(t4_120HF.cells),
+                         cols.highlight = "steelblue1",
+                         sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("120 min High Fat")
+t4_120HF.UMAP
+```
+
+```{r}
+#rm(t4_120HF.cells)
+#gc()
+```
+
+## 4 hr
+
+```{r}
+t5_240HF.cells <-subset(MB.combined, idents = "t5_240HF")
+```
+ +
+  theme_void() + coord_fixed(1) + theme(plot.title = element_text(hjust = 0.5)) + ggtitle("240 min High Fat")
+```{r, fig.height=10, fig.width=10}
+t5_240HF.UMAP <- DimPlot(MB.combined, 
+                         na.value = "grey10",
+                         reduction = "umap", 
+                         label=FALSE,  
+                         raster=FALSE, 
+                         cells.highlight = colnames(t5_240HF.cells), 
+                         cols.highlight = "mediumpurple1", 
+                         sizes.highlight = 0.1) +
+  theme_void() +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("240 min High Fat")
+t5_240HF.UMAP
+```
+
+```{r}
+#rm(t5_240HF.cells)
+#gc()
+```
+
+# combined plot
+
+```{r,fig.width = 12, fig.height = 7.5}
+combined_plot <- t0_UF.UMAP+t1_15HF.UMAP+t2_30HF.UMAP+t3_60HF.UMAP+t4_120HF.UMAP+t5_240HF.UMAP
+combined_plot
+```
+
+```{r,fig.width = 12, fig.height = 7.5}
+combined_plot2 <-(t0_UF.UMAP | t1_15HF.UMAP | t2_30HF.UMAP) / (t3_60HF.UMAP | t4_120HF.UMAP | t5_240HF.UMAP) + plot_layout(guides = 'collect')
+combined_plot2
+```
+
+
+# save combined plot
+
+```{r}
+save_plot("250210_highlight_by_condition_combined.svg", combined_plot, base_height = 7.5, base_width = 12)
+save_plot("250210_highlight_by_condition_combined.png", combined_plot, base_height = 7.5, base_width = 12)
+save_plot("250210_highlight_by_condition_combined.tif", combined_plot, base_height = 7.5, base_width = 12)
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+

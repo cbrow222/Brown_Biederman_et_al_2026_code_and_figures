@@ -1,0 +1,260 @@
+---
+title: "Annotation v2.0"
+author: "Cat Brown and Michelle Biederman"
+date: "5/22/25"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+10-27-25: Cluster tree added from 250603_stacked_bar_cluster_tree.Rmd
+
+5-22-25: Now all relative to cluster tree order!  Clusters are cluster tree order, but I kept the old seurat metadata names, too.
+
+5-19-25: v1.5 update based on 250113_v1.4_annotation_update_short_cell_types_and_DE_for_all_cell_types.Rmd
+
+Code from Cat Brown home/cbrown/241118_atlas_v1_3_creation_and_DE.Rmd
+
+8-16-24 changed to updated atlas v1.1 annotations 9-23-24 Cat updated 240923_atlas_v1_2_creation_and_DE.Rmd http://basecaller.ciwemb.edu/home/cbrown/240923_atlas_v1_2_creation_and_DE.Rmd 11-18-24 Cat updated 241118_atlas_v1_3_creation_and_DE.Rmd http://basecaller.ciwemb.edu/home/cbrown/241118_atlas_v1_3_creation_and_DE.Rmd 1-13-25 Updating to v1.4 with short cell type annotations (10 or fewer characters, each) Adding metadata part is based on Michelleâ€™s code in 240814_v1_1_all_annotations_and_metadata.Rmd. DEseq code I previously wrote and run on v1.2
+
+10-16-25: Added ape library and rebuild of cluster tree
+
+# Load libPaths
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+# Load libraries
+
+```{r, message = false}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(DESeq2)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(ape, lib="/apps/R/4.3.2/DESeq2")
+```
+
+# Load initial atlas
+
+```{r}
+MB.combined <- readRDS("/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_corrected.rds")
+MB.combined
+head(MB.combined@meta.data)
+```
+
+# Load annotations
+
+```{r}
+cellAnnotations<-read.csv("/mnt/sequence/home/biederman/250522_Annotations_v2.csv", header = TRUE, sep=",")
+cellAnnotations
+``` 
+
+# Add annotations
+
+```{r}
+MB.combined@meta.data$tree_clusters<-cellAnnotations$Cluster[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$system<-cellAnnotations$system[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$tissue<-cellAnnotations$tissue[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$cell_type_general<-cellAnnotations$cell_type_general[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$cell_type_cluster<-cellAnnotations$cell_type_cluster[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$short_cell_type<-cellAnnotations$short_cell_type[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$short_cell_type_cluster<-cellAnnotations$short_cell_type_cluster[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$seurat_cell_type_cluster<-cellAnnotations$seurat_cell_type_cluster[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data$seurat_short_cell_type_cluster<-cellAnnotations$seurat_short_cell_type_cluster[as.numeric(MB.combined@meta.data$seurat_clusters)]
+MB.combined@meta.data
+```
+
+```{r}
+MB.combined@meta.data$tree_clusters <- as.factor(MB.combined@meta.data$tree_clusters)
+MB.combined@meta.data
+```
+
+# Rebuild tree with v2.0
+
+```{r}
+DefaultAssay(MB.combined) <- "integrated"
+Idents(MB.combined) <- "tree_clusters"
+MB.combined <- BuildClusterTree(object = MB.combined, reduction = "umap", verbose = TRUE, reorder = TRUE)
+```
+
+# Plot cluster tree with ape and no node labels
+
+```{r, fig.height=40, fig.width=8}
+# pull the tree
+data.tree <- Tool(object = MB.combined, slot = "BuildClusterTree")
+data.tree$tip.label <- str_sub(data.tree$tip.label,2,-1)
+# plot the tree
+tree_plot <- ape::plot.phylo(x = data.tree, direction = "rightwards", type = "tidy")
+tree_plot
+# had to plot it in the console and export the svg 4000 x 800
+```
+
+# Save updated atlas
+
+```{r}
+saveRDS(MB.combined, "250522_atlas_v2_0.rds")
+```
+
+# New tree_clusters UMAP
+
+```{r,fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "tree_clusters", label=TRUE, label.size = 4, repel = TRUE, raster=TRUE) + theme(legend.position = "none")
+plot
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_tree_clusters_v2_0.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_short_tree_clusters_v2_0.svg", plot, base_height = 20, base_width = 20)
+```
+
+# Cluster tree UMAP rastered with legend
+
+```{r,fig.height=20, fig.width=30}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "tree_clusters", label=TRUE, label.size = 4, repel = TRUE, raster=TRUE) + theme(legend.position = "right")
+plot
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_tree_clusters_legend_v2_0.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_short_tree_clusters_legend_v2_0.svg", plot, base_height = 20, base_width = 20)
+```
+
+# New short cell type cluster UMAP
+
+```{r,fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type_cluster", label=TRUE, label.size = 3.3, repel = TRUE, raster=TRUE) + theme(legend.position = "none")
+plot
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_short_celltype_cluster_v2_0.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_short_celltype_cluster_v2_0.svg", plot, base_height = 20, base_width = 20)
+```
+
+```{r}
+Idents(MB.combined) <- "tree_clusters"
+levels(MB.combined)
+```
+
+
+# New short cell type cluster UMAP
+
+```{r,fig.height=40, fig.width=20}
+
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type_cluster", label=TRUE, label.size = 3.2, repel = TRUE, raster=TRUE) + theme(legend.position = "bottom")
+plot
+```
+
+# New short cell type general UMAP
+
+```{r,fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type", label=TRUE, label.size = 4, repel = TRUE, raster=TRUE) + theme(legend.position = "none")
+plot
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_short_celltype_general_v2_0.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_short_celltype_general_v2_0.svg", plot, base_height = 20, base_width = 20)
+```
+
+# New short cell type cluster UMAP
+
+```{r,fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type_cluster", label=TRUE, label.size = 3.4, repel = TRUE, raster=TRUE) + theme(legend.position = "none")
+plot
+```
+
+# New tissue UMAP with legend
+
+```{r, fig.height=20, fig.width=18}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", raster=TRUE) +
+  theme(legend.position = "bottom") +
+  theme(legend.text=element_text(size=18)) +
+  labs(title = "Major Systems") +
+  theme(plot.title = element_text(size=22))
+plot
+```
+
+# New tissue UMAP
+
+```{r, fig.height=20, fig.width=20}
+plot2 <- DimPlot(MB.combined, reduction = "umap", group.by = "tissue", label=TRUE, label.size = 6, repel = TRUE, raster=TRUE) + theme(legend.position = "none") +
+  labs(title = "Tissues") +
+  theme(plot.title = element_text(size=22))
+plot2
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_tissue_v2_0_legend.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_tissue_v2_0_nolegend.png", plot2, base_height = 20, base_width = 20)
+```
+
+# New system UMAP with legend
+
+```{r, fig.height=20, fig.width=18}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "system", raster=TRUE) +
+  theme(legend.position = "bottom") +
+  theme(legend.text=element_text(size=18)) +
+  labs(title = "Major Systems") +
+  theme(plot.title = element_text(size=22))
+plot
+```
+
+# New system UMAP without legend 
+
+```{r, fig.height=20, fig.width=20}
+plot2 <- DimPlot(MB.combined, reduction = "umap", group.by = "system", label=TRUE, label.size = 6, repel = TRUE, raster=TRUE) +
+  theme(legend.position = "none") +
+  theme(legend.text=element_text(size=18)) +
+  labs(title = "Major Systems") +
+  theme(plot.title = element_text(size=22))
+plot2
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_system_v2_0_legend.png", plot, base_height = 20, base_width = 20)
+save_plot("250522_atlas_system_v2_0_nolegend.png", plot2, base_height = 20, base_width = 20)
+```
+
+# New short cell type UMAP
+
+```{r, fig.height=20, fig.width=20}
+plot <- DimPlot(MB.combined, reduction = "umap", group.by = "short_cell_type", label=TRUE, label.size = 5, repel = TRUE, raster=FALSE) + theme(legend.position = "none") +
+  labs(title = "Cell Types", size = 24) +
+  theme(plot.title = element_text(size=22))
+plot
+```
+
+# save plot
+
+```{r}
+save_plot("250522_atlas_short_celltype__v2_0.png", plot, base_height = 20, base_width = 20)
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

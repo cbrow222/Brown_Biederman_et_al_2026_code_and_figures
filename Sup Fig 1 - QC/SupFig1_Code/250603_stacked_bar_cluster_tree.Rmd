@@ -1,0 +1,277 @@
+---
+title: "MB4-MB26v2.0 propeller stacked bar and cluster tree"
+author: "Michelle Biederman"
+date: "6/3/25"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+See if I can combine the cluster tree with the stacked bar plot by putting stacked bar plot in cluster tree order
+
+# Load libpaths
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+# Load the libraries
+
+```{r, message=FALSE}
+library(speckle, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(Seurat)
+library(CellBench, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(limma, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(ggplot2)
+library(scater, lib="/apps/R/4.3.2/osca/")
+library(patchwork)
+library(edgeR, lib="/apps/R/4.3.2/osca/")
+library(statmod, lib="/apps/R/4.3.2/osca/")
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(tidyr)
+library(ape, lib="/apps/R/4.3.2/DESeq2")
+library(scales)
+library(stringr)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Load data
+
+```{r}
+MB.combined <- readRDS("/mnt/sequence/home/biederman/250522_atlas_v2_0.rds")
+MB.combined
+```
+
+# Check metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Add metadata columns for propeller
+
+```{r}
+MB.combined$cluster <- MB.combined$tree_clusters
+MB.combined$sample <- MB.combined$sample_name
+MB.combined$group <- MB.combined$condition
+```
+
+# check new metadata
+
+```{r}
+head(MB.combined@meta.data)
+```
+
+# Change Ident to cell_type_cluster
+
+```{r}
+Idents(MB.combined) <- "cluster"
+```
+
+# Perform arcsin square root transformation
+
+```{r}
+MB.prop.arcsin <- propeller(MB.combined, transform="asin")
+MB.prop.arcsin
+```
+
+# Filter out pvalue > 0.05
+
+```{r}
+filter(MB.prop.arcsin,P.Value <= 0.05)
+```
+
+# Filter out false discovery rates > 0.05
+
+```{r}
+filter(MB.prop.arcsin,FDR <= 0.05)
+```
+
+Another option for running propeller is for the user to supply the cluster, 
+sample and group information explicitly to the propeller function.
+
+# Visualise the results
+
+In the r BiocStyle::Biocpkg("speckle") package there is a plotting function 
+plotCellTypeProps that takes a Seurat or SingleCellExperiment object, 
+extracts sample and cluster information and outputs a barplot of cell type 
+proportions between the samples. The user also has the option of supplying the
+cluster and sample cell information instead of an R object. The output is a 
+ggplot2 object that the user can then manipulate however they please.
+
+# Get cell type proportions and transformed proportions directly
+
+Alternatively, we can obtain the cell type proportions and transformed 
+proportions directly by running the getTransformedProps function which takes 
+the cluster and sample information as input. The output from 
+getTransformedProps is a list with the cell type counts, transformed 
+proportions and proportions as elements.
+
+# reorder factors
+
+```{r}
+tree_factors <- rev(c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100", "101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "145", "146", "147", "148", "149", "150", "151", "152", "153", "154", "155", "156", "157", "158", "159", "160", "161", "162", "163", "164", "165", "166", "167", "168", "169", "170", "171", "172", "173", "174", "175", "176", "177", "178", "179", "180", "181", "182", "183", "184", "185", "186", "187", "188", "189", "190", "191", "192", "193", "194", "195", "196", "197", "198", "199", "200", "201", "202", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216", "217", "218", "219", "220", "221", "222", "223", "224", "225", "226", "227", "228", "229", "230", "231", "232", "233", "234", "235", "236", "237", "238", "239", "240", "241", "242", "243", "244", "245", "246", "247", "248", "249", "250", "251", "252", "253", "254", "255", "256", "257", "258", "259", "260", "261", "262", "263", "264", "265", "266", "267", "268", "269", "270", "271"))
+```
+
+```{r}
+MB.combined$cluster <- as.factor(MB.combined$cluster)
+levels(MB.combined$cluster) <- tree_factors
+levels(MB.combined$cluster)
+```
+
+# colors from ggplot default color palatte
+
+```{r}
+colors <- rev(hue_pal()(271))
+```
+
+# stacked bar chart for cluster tree 
+
+```{r,fig.height=57,fig.width=10}
+par(mar = c(10, 4, 2, 11))
+props.asin <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="asin")
+barplot(props.asin$Proportions, col = colors,legend.text =TRUE, args.legend = list(x = "topleft", inset = c(-0.1,0)),
+        ylab="Proportions", las = 2)
+#save.image(file="250611_stacked_bar_v2_0.svg")
+#dev.copy(svg, "250611_stacked_bar_v2_0.svg", width = 570, height = 100)
+#dev.off()
+```
+
+
+# See which models best fit data variances
+
+If you are interested in seeing which models best fit the data in terms of the
+cell type variances, there are two plotting functions that can do this: 
+plotCellTypeMeanVar and plotCellTypePropsMeanVar. For this particular 
+dataset it isn't very informative because there are only three cell "types" 
+and no biogical variability.
+
+
+```{r,fig.height=5, fig.width=10}
+props.arcsin <- getTransformedProps(MB.combined$cluster, MB.combined$sample, transform="asin")
+par(mfrow=c(1,1))
+plotCellTypeMeanVar(props.arcsin$Counts)
+plotCellTypePropsMeanVar(props.arcsin$Counts)
+```
+
+# Fitting linear models using the transformed proportions directly
+
+If you are like me, you won't feel very comfortable with a black-box approach 
+where one function simply spits out a table of results. If you would like to 
+have more control over your linear model and include extra covariates then you 
+can fit a linear model in a more direct way using the transformed proportions 
+that can be obtained by running the getTransformedProps function.
+
+We have already obtained the proportions and transformed proportions when we ran
+the getTransformedProps function above. This function outputs a list object 
+with three elements: Counts, TransformedProps and Proportions. These are 
+all matrices with clusters/cell types in the rows and samples in the columns.
+
+# examine transformed props
+
+```{r}
+names(props.arcsin)
+head(props.arcsin$TransformedProps)
+```
+
+First we need to set up our sample information in much the same way we would if 
+we were analysing bulk RNA-seq data. We can pretend that we have pairing 
+information which corresponds to our original vs bootstrapped samples to make 
+our model a little more complicated for demonstration purposes. 
+
+# set up sample info
+
+```{r}
+group <- c("t0_UF","t0_UF","t0_UF","t1_15HF","t1_15HF","t1_15HF","t2_30HF","t2_30HF","t3_60HF","t3_60HF","t3_60HF","t4_120HF","t4_120HF","t5_240HF","t5_240HF")
+sampleMB <- c(1,2,3,1,2,3,1,2,1,2,3,1,2,1,2)
+mb.df <- data.frame(group,sampleMB)
+mb.df
+```
+
+# Design model matrix
+
+We can set up a design matrix taking into account group and pairing information.
+Please note that the way that propeller has been designed is such that the 
+group information is *always* first in the design matrix specification, and 
+there is NO intercept. If you are new to design matrices and linear modelling, I
+would highly recommend reading the r BiocStyle::Biocpkg("limma") manual, which
+is incredibly extensive and covers a variety of different experimental set ups.
+
+```{r}
+design <- model.matrix(~ 0 + group + sampleMB, data = mb.df, na.action)
+design
+```
+
+#ANOVA 
+
+In our example, we have three groups, 10x, CelSeq and DropSeq. In order to 
+perform an ANOVA to test for cell type composition differences between these
+3 technologies, we can use the propeller.anova function. The coef argument
+tells the function which columns of the design matrix correspond to the groups 
+we are interested in testing. Here we are interested in the first three columns.
+
+## ANOVA arcsin
+
+```{r}
+MB.anova.arcsin <- propeller.anova(prop.list=props.arcsin, design=design, coef = c(1,2,3,4,5,6), 
+                robust=TRUE, trend=FALSE, sort=TRUE)
+MB.anova.arcsin
+```
+
+## ANOVA arcsin with p >0.05 filtered out
+
+```{r}
+MB.anova.arcsin %>% filter(P.Value <= 0.05)
+```
+
+## ANOVA arcsin with FDR >0.05 filtered out
+
+```{r}
+MB.anova.arcsin %>% filter(FDR <= 0.05)
+```
+Note that the p-values are smaller here than before because we have specified
+a pairing vector that states which samples were bootstrapped and which are the 
+original samples.
+
+If we were interested in testing only 10x versus DropSeq we could alternatively
+use the propeller.ttest function and specify a contrast that tests for this
+comparison with our design matrix.
+
+# Plot cluster tree with ape and no node labels
+
+```{r}
+MB.combined <- BuildClusterTree(object = MB.combined, reduction = "umap", verbose = TRUE, reorder = TRUE)
+```
+
+```{r, fig.height=40, fig.width=8}
+# pull the tree
+data.tree <- Tool(object = MB.combined, slot = "BuildClusterTree")
+data.tree$tip.label <- str_sub(data.tree$tip.label,2,-1)
+# plot the tree
+tree_plot <- ape::plot.phylo(x = data.tree, direction = "rightwards", type = "tidy")
+tree_plot
+# had to plot it in the console and export the svg 4000 x 800
+```
+
+# Save tree
+
+```{r}
+tree_plot
+```
+
+
+
+# session info
+
+```{r}
+sessionInfo()
+```
+
+
+
+

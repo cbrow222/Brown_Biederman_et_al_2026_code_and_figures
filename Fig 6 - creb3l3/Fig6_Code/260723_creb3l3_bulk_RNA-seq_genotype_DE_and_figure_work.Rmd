@@ -1,0 +1,142 @@
+---
+title: "Creb3l3 bulk RNA-seq analysis and figures"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(DESeq2)
+```
+
+# Read in Creb3l3 larval bulk RNA-seq data
+```{r}
+fc_cutoff <- 1.5
+p_cutoff <- 0.05
+
+tpmData <- read.csv('C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Figure Folders for Server-Lab/Fig 6 - creb3l3/Larval_salmon.merged.gene_tpm.tsv', 
+                           header = TRUE, 
+                           sep = "\t", 
+                           row.names = "gene_id")
+countData <- read.csv('C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Figure Folders for Server-Lab/Fig 6 - creb3l3/salmon.merged.gene_counts.tsv', 
+                           header = TRUE, 
+                           sep = "\t", 
+                           row.names = "gene_id")
+```
+
+# Reshape tpm data
+```{r}
+tpmData$ensembl_gene_id <- rownames(tpmData)
+row.names(tpmData) <- NULL
+
+tpmData <- tpmData %>% 
+  pivot_longer(cols = c("mut_hf1", "mut_hf2", "mut_hf3", 
+                        "mut_nf1", "mut_nf2", "mut_nf3",
+                        "wt_hf1", "wt_hf2", "wt_hf3", 
+                        "wt_nf1", "wt_nf2", "wt_nf3",),
+               names_to = "sample_id",
+               values_to = "TPM") %>%
+  mutate(replicate = case_when(grepl("1$", sample_id) ~ 1,
+                               grepl("2$", sample_id) ~ 2,
+                               grepl("3$", sample_id) ~ 3),
+         Diet = case_when(grepl("hf", sample_id) ~ "hf",
+                          grepl("nf", sample_id) ~ "nf"),
+         genotype = case_when(grepl("mut", sample_id) ~ "mut",
+                              grepl("wt", sample_id) ~ "wt"))
+```
+
+# Set up metadata for DESeq2
+```{r}
+cnames <- colnames(countData)
+diet <- c("hf", "hf", "hf", "nf","nf","nf", "hf", "hf", "hf", "nf","nf","nf")
+genotype <- c("mut","mut","mut","mut","mut","mut","wt","wt","wt","wt","wt","wt") 
+replicate <-  c(1,2,3,1,2,3,1,2,3,1,2,3)
+columnData <- tibble(cnames, diet, genotype, replicate) %>%
+  column_to_rownames(var = "cnames")
+```
+
+# DESeq for main effect of genotype
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = round(countData),
+                              colData = columnData,
+                              design = ~ diet + genotype)
+dds$genotype <- relevel(dds$genotype, ref = "wt")
+dds$diet <- relevel(dds$diet, ref = "nf")
+dds <- DESeq(dds, test = "LRT", reduced = ~ diet)
+
+res <- results(dds, tidy = TRUE)
+colnames(res)[1] <- "ensembl_gene_id"
+```
+# Get gene names from tpm data and add to results
+```{r}
+gene_info <- dplyr::select(tpmData, gene_name, ensembl_gene_id) %>% unique()
+res <- left_join(res, gene_info, by = "ensembl_gene_id")
+```
+
+# Get just significant results
+```{r}
+sig_res <- filter(res, padj <=0.05)
+```
+
+# Save DE results
+```{r}
+write.csv(res, "260723_creb3l3_bulk_DE_genotype_main_effect.csv")
+write.csv(sig_res, "260723_creb3l3_bulk_DE_genotype_main_effect_sig_hits.csv")
+```
+
+# Heatmap of count Data for these genes
+## Make matrix of counts of relvant genes
+```{r}
+count_matrix <- countData %>% rownames_to_column(var = "ensembl_gene_id") %>% 
+  filter(ensembl_gene_id %in% sig_res$ensembl_gene_id) %>% left_join(gene_info) %>%
+  select(!ensembl_gene_id) %>% column_to_rownames(var = "gene_name") %>%
+  as.matrix()
+```
+
+# Use a max divided normalization instead of the z-score
+```{r}
+max_exp_df<- as.data.frame(count_matrix) %>% 
+  rowwise() %>% summarize(Maximum = max(c_across(1:12)))
+creb_matrix_max_divided <- as.data.frame(count_matrix) / unlist(max_exp_df)
+creb_matrix_max_divided <- as.matrix(creb_matrix_max_divided)
+```
+
+# Plot it
+```{r, fig.height=8, fig.width=3.5}
+h1 <- pheatmap(creb_matrix_max_divided, cluster_cols = FALSE, annotation_col = columnData, scale = "none", cutree_rows = 3, fontsize = 6, treeheight_row = 4, show_colnames = FALSE)
+```
+# Get the groupings
+```{r}
+creb_groups = cutree(h1$tree_row,3)
+creb_groups = data.frame(creb_groups)
+rownames(creb_groups) = rownames(creb_matrix_max_divided)
+```
+
+# Name the groupings
+```{r}
+creb_groups <- creb_groups %>% mutate(Creb3l3_deletion_response  = case_when(
+  creb_groups == 1 ~ "Upregulated",
+  creb_groups == 2 ~ "Uniformly Downregulated",
+  creb_groups == 3 ~ "Fed Downregulated"
+))
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

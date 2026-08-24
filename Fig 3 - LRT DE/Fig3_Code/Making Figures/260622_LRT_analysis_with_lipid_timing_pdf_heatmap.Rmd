@@ -1,0 +1,147 @@
+---
+title: "LRT DE figure with lipid location info"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggpattern)
+``` 
+
+
+
+# Read in LRT results
+```{r}
+LRT <- read.csv("Z:/Labs/Farber_Lab/Farber_Lab_Public/snRNA-seq/atlas paper figures/Sup Data - DEGs LRT and pairwise/251211_DESeq_LRT_all_times_filtered_DE_results.csv")
+```
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+# Read in lipid timings
+```{r}
+lipid_timings <- read_xlsx("C:/Users/cat14/OneDrive/Documents/Farber_lab_local_code/260605_lipid_timing_by_cluster.xlsx")
+```
+
+# Read in response group info
+```{r}
+response_groups <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260219_LRT_response_groups.csv") 
+```
+
+# Get unique LRT genes
+```{r}
+genes <- LRT %>% select("gene") %>% unique() %>% unlist()
+```
+
+# Get average expression levels for all genes in all clusters
+```{r}
+avg_exp <- AverageExpression(atlas, group.by = c("short_cell_type_cluster", "sample_name"), assay = "RNA", features = genes)
+```
+
+# Get system info
+```{r}
+annotation_data <- atlas@meta.data %>% group_by(short_cell_type_cluster) %>% 
+  select(c(short_cell_type_cluster, system)) %>% unique()
+annotation_data$short_cell_type_cluster <- str_replace_all(annotation_data$short_cell_type_cluster, "_", "-")
+```
+
+# Remove atlas for space
+```{r}
+rm(atlas)
+```
+
+# Restructure avg_exp so that I can combine with LRT
+```{r}
+avg_exp_df <- as.data.frame(avg_exp[["RNA"]]) %>% 
+  rownames_to_column(var = "gene") %>%
+  pivot_longer(cols = 2:4023, values_to = "expression", names_to = "cluster_sample") %>%
+  separate_wider_delim(cols = "cluster_sample", delim = "_", names = c("cluster", "sample")) %>%
+  pivot_wider(names_from = "sample", values_from = "expression")
+```
+
+# Combine to filter the average expression to relvant rows
+```{r}
+LRT_tags <- select(LRT, c("gene", "celltype"))
+heatmap_data <- left_join(LRT_tags, avg_exp_df, by = c("gene" = "gene", "celltype" = "cluster"))
+```
+
+# Create matrix with gene_cluster as rownames and expression as the data
+```{r}
+heatmap_matrix <- unite(heatmap_data, "gene", "celltype", col="gene_celltype", sep = "_") %>% unique() %>% relocate(`t3-sample9-60HF`, .after = `t2-sample8-30HF`)  %>% remove_rownames() %>% column_to_rownames(var = "gene_celltype") %>% as.matrix()
+```
+
+```{r}
+time_colors <- c("unfed" = "hotpink1",  "15min" = "orange", "30min" = "yellow2", "1h" = "lightgreen", "2h" = "steelblue1", "4h" = "mediumpurple1")
+sample_times_info <- c("unfed", "unfed", "unfed", "15min", "15min", "15min", "30min", "30min", "1h", "1h", "1h", "2h", "2h", "4h", "4h")
+response_colors <- c("1" = "#e41a1c", "2" = "#377eb8", "3" = "#4daf4a", "4" = "#984ea3", "5" = "#ff7f00", "6" = "#ffff33")
+sample_times <- data.frame(condition = sample_times_info, row.names = colnames(heatmap_matrix))
+```
+```{r}
+response_groups = column_to_rownames(response_groups, var = "gene_cluster")
+```
+```{r}
+response_groups$response_groups = as.character(response_groups$response_groups)
+```
+
+# Figuring out lipid flux details
+```{r}
+response_groups <- rownames_to_column(response_groups, var = "gene_cluster") %>% 
+  separate_wider_delim(cols = "gene_cluster", delim = "_", names = c("gene", "cluster"))
+```
+```{r}
+lipid_timings$cell_type_cluster <- str_replace_all(lipid_timings$cell_type_cluster, "_", "-")
+response_lipid <- left_join(response_groups, lipid_timings, by = c("cluster" = "cell_type_cluster"))
+```
+# Make column on whether it could be flux
+```{r}
+response_lipid <- response_lipid %>% mutate(Mechanism = case_when(
+  Lipid_timing == "t1-15HF" ~ "Flux Possible",
+  (Lipid_timing == "t3-60HF") & (response_groups %in% c("3", "5")) ~ "Flux Possible",
+  (Lipid_timing == "t5-240HF") & (response_groups == "3") ~ "Flux Possible",
+  .default = "Signaling"
+))
+```
+# Reformat for using with heatmap
+```{r}
+response_lipid <- response_lipid %>% unite(gene, cluster, col = "gene_cluster", sep = "_") %>%
+  column_to_rownames(var = "gene_cluster")
+```
+
+```{r}
+time_colors_2 <- c("t1-15HF" = "orange", "t3-60HF" = "lightgreen", "t5-240HF" = "mediumpurple1")
+mech_colors <- c("Flux Possible" = "maroon4", "Signaling" = "lightgray")
+```
+
+
+# Make heatmap
+```{r, fig.height=10, fig.width=4}
+h1 = pheatmap(heatmap_matrix, scale = "row",  cluster_cols = FALSE, show_rownames = FALSE, cuttree_rows = 6, annotation_col = sample_times, annotation_colors = list(condition = time_colors, response_groups = response_colors, Lipid_timing = time_colors_2, Mechanism = mech_colors), annotation_row = response_lipid, treeheight_row = 8, fontsize = 8)
+```
+```{r}
+save_plot("260622_LRT_heatmap_lipid_timing.pdf", h1, base_height = 10, base_width = 4)
+```
+
+
+# Session info
+```{r}
+sessionInfo()
+```
+
+
+

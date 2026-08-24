@@ -1,0 +1,95 @@
+---
+title: "Fixing fonts for QC violins"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+``` 
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+# Add plotting sample names to metadata
+```{r}
+atlas@meta.data <- atlas@meta.data %>%
+  mutate(
+    figure_sample_names = case_when(
+      orig.ident == "MB4" ~ "t0-UF-1",
+      orig.ident == "MB6" ~ "t0-UF-2",
+      orig.ident == "MB11" ~ "t0-UF-3",
+      orig.ident == "MB24" ~ "t1-15HF-1",
+      orig.ident == "MB25" ~ "t1-15HF-2",
+      orig.ident == "MB26" ~ "t1-15HF-3",
+      orig.ident == "MB5" ~ "t2-30HF-1",
+      orig.ident == "MB9" ~ "t2-30HF-2",
+      orig.ident == "MB10" ~ "t3-60HF-1",
+      orig.ident == "MB13" ~ "t3-60HF-2",
+      orig.ident == "MB23" ~ "t3-60HF-3",
+      orig.ident == "MB12" ~ "t4-120HF-1",
+      orig.ident == "MB15" ~ "t4-120HF-2",
+      orig.ident == "MB14" ~ "t5-240HF-1",
+      orig.ident == "MB16" ~ "t5-240HF-2"
+    )
+  )
+```
+
+
+```{r, fig.width=3.5, fig.height=2.5}
+nCount_vln <- VlnPlot(atlas, "nCount_RNA", group.by = "figure_sample_names", ncol = 1, alpha = 0.01, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1"), raster = t, pt.size = 0.005) + 
+  scale_x_discrete(name = "Sample") + labs(y = "Reads per Cell") + theme(legend.position = "none", plot.title = element_blank(), text = element_text(family = "sans", size = 12), axis.text = element_text(size = 12, family = "sans"))
+nCount_vln
+```
+## Save
+```{r}
+save_plot("260623_nCount_Vln_2x_size.png", nCount_vln, base_height = 2.5, base_width = 3.5)
+save_plot("260623_nCount_Vln_2x_size.svg", nCount_vln, base_height = 2.5, base_width = 3.5)
+```
+
+```{r, fig.width=3.5, fig.height=2.5}
+nFeature_vln <- VlnPlot(atlas, "nFeature_RNA", group.by = "figure_sample_names", ncol = 1, alpha = 0.01, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1"), raster = t, pt.size = 0.005) + 
+  scale_x_discrete(name = "Sample") + labs(y = "Features per Cell") + theme(legend.position = "none", plot.title = element_blank(), text = element_text(family = "sans", size = 12), axis.text = element_text(size = 12, family = "sans"))
+nFeature_vln
+```
+## Save
+```{r}
+save_plot("260223_nFeature_Vln_2x_size.png", nFeature_vln, base_height = 2.5, base_width = 3.5)
+save_plot("260223_nFeature_Vln_2x_size.svg", nFeature_vln, base_height = 2.5, base_width = 3.5)
+```
+
+```{r, fig.width=3.5, fig.height=2.5}
+mito_vln <- VlnPlot(atlas, "percent.mt", group.by = "figure_sample_names", ncol = 1, alpha = 0.01, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1"), raster = t, pt.size = 0.005) + 
+  scale_x_discrete(name = "Sample") + labs(y = "Percent Mitochondrial Reads") + theme(legend.position = "none", plot.title = element_blank(), text = element_text(family = "sans", size = 12), axis.text = element_text(size = 12, family = "sans"))
+mito_vln
+```
+## Save
+```{r}
+save_plot("260223_percent_mito_Vln_2x_size.png", mito_vln, base_height = 2.5, base_width = 3.5)
+save_plot("260223_percent_mito_Vln_2x_size.svg", mito_vln, base_height = 2.5, base_width = 3.5)
+```
+
+
+# Session info
+```{r}
+sessionInfo()
+```
+

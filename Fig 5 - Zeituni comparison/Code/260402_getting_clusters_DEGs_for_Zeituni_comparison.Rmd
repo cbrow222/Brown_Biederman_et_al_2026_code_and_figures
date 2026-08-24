@@ -1,0 +1,126 @@
+---
+title: "Files for comparison to Zeituni data"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(DESeq2)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Load atlas
+```{r}
+atlas <- readRDS("/mnt/sequence/home/cbrown/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+# Load pairwise DEGs
+# Read in DE genes
+```{r}
+pairwise_full <- read.csv("260129_short_cell_type_cluster_v2_0_pairwise_DE_from_250113.csv")
+```
+
+# Filter to comparisions to unfed
+```{r}
+pairwise_full <- filter(pairwise_full, time %in% c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF"))
+```
+
+# Get just the subset of cells I care about
+```{r}
+Zeituni_set <- subset(atlas, (tissue %in% c("enteric", "intestine", "digestive general", "liver", "bile duct", "exocrine pancreas", "endocrine pancreas", "esophagus")) | (tree_clusters == "99"))
+```
+
+# Get list of short_cell_type_clusters that matter
+```{r}
+Zeituni_cell_types <- unique(Zeituni_set$short_cell_type_cluster) %>% 
+  str_replace_all("_", "-")
+```
+
+# Get DE results for just the Zeituni cell types
+```{r}
+Zeituni_DEGs <- filter(pairwise_full, short_cell_type_cluster %in% Zeituni_cell_types)
+```
+
+# Save
+```{r}
+write_csv(Zeituni_DEGs, "260402_significant_pairwise_to_unfed_DEGs_for_clusters_in_Zeituni.csv")
+```
+
+# Pseudo-bulk the entire set
+```{r}
+pseudo_ct <- AggregateExpression(Zeituni_set, assays = "RNA", return.seurat = T, group.by = c("condition", "sample_name"))
+```
+# Check naming of cells
+```{r}
+head(Cells(pseudo_ct))
+```
+# Run DE across all times (LRT)
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = pseudo_ct@assays$RNA$counts, 
+                              colData = pseudo_ct@meta.data,
+                              design = ~condition)
+dds$condition <- relevel(dds$condition, ref = "t0-UF")
+dds <- DESeq(dds, test = "LRT", useT = TRUE, minmu = 1e-6, minReplicatesForReplace = Inf, reduced = ~1)
+res <- results(dds, alpha = 0.05)
+res <- rownames_to_column(data.frame(res), "gene")
+sig_res <- filter(res, padj <= 0.05)
+```
+```{r}
+write_csv(res, "260402_Zeituni_cell_types_bulk_LRT_results_full.csv")
+write_csv(sig_res, "260402_Zeituni_cell_types_bulk_LRT_results_filtered.csv")
+```
+
+# Run pairwise DE analysis
+```{r}
+times = c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF")
+celltype_DE =NULL
+for (t in times){
+  tryCatch({
+    t1=strsplit(t, "[.]")[[1]][1]
+    t2=strsplit(t, "[.]")[[1]][2]
+    sample = subset(pseudo_ct, (condition %in% c(t1, t2)))
+    dds <- DESeqDataSetFromMatrix(countData = sample@assays$RNA$counts, 
+                                  colData = sample@meta.data,
+                                design = ~condition)
+    dds$condition <- relevel(dds$condition, ref = t2)
+    dds <- DESeq(dds, test = "LRT", useT = TRUE, minmu = 1e-6, minReplicatesForReplace = Inf, reduced = ~1)
+    res <- results(dds, alpha = 0.05)
+    res <- rownames_to_column(data.frame(res), "gene")
+    res$time <- t
+    celltype_DE = rbind(celltype_DE, res)},
+    error = function(err){
+      bad_ct_time_combos <- c(bad_ct_time_combos, paste(celltype, t, sep = "_"))
+    }
+  )
+}
+filtered_celltype_DE <- filter(celltype_DE, padj <= 0.05)
+```
+
+```{r}
+write_csv(celltype_DE, "260402_Zeituni_cell_types_bulk_pairwise_results_full.csv")
+write_csv(filtered_celltype_DE, "260402_Zeituni_cell_types_bulk_pairwise_results_filtered.csv")
+```
+
+# Save the seurat object
+```{r}
+saveRDS(Zeituni_set, "260402_Zeituni_comparison_seurat_file.rds")
+```
+
+
+# Session info
+```{r}
+sessionInfo()
+```

@@ -1,0 +1,105 @@
+---
+title: "Fixing cell cycle figure fonts"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+``` 
+
+# Read in atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+# Calculate proportions of cell cycle phases
+```{r}
+cell_cycle_data_phase_cell_type_2_time <- atlas@meta.data %>% group_by(short_cell_type_cluster, Cell_cycle_phase, condition) %>% 
+  summarise(Count = n())
+```
+```{r}
+lvls <- unique(cell_cycle_data_phase_cell_type_2_time$short_cell_type_cluster)
+cell_cycle_data_phase_cell_type_2_time$short_cell_type_cluster <- factor(cell_cycle_data_phase_cell_type_2_time$short_cell_type_cluster, levels = lvls)
+```
+
+```{r}
+cell_cycle_data_phase_cell_type_2_time <- mutate(cell_cycle_data_phase_cell_type_2_time, Cond = case_when(
+  condition == "t0_UF" ~ "Unfed",
+  condition == "t1_15HF" ~ "15min",
+  condition == "t2_30HF" ~ "30min",
+  condition == "t3_60HF" ~ "1h",
+  condition == "t4_120HF" ~ "2h",
+  condition == "t5_240HF" ~ "4h"
+))
+```
+
+```{r}
+cell_cycle_data_phase_cell_type_2_time$Cond <- factor(cell_cycle_data_phase_cell_type_2_time$Cond, levels = c("Unfed", "15min", "30min", "1h", "2h", "4h"))
+```
+
+# Plot it
+```{r, fig.width=6, fig.height=20}
+cell_cycle_by_cell_type_2_time <- ggplot(cell_cycle_data_phase_cell_type_2_time, aes(x = short_cell_type_cluster, y = Count, fill = Cell_cycle_phase)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Cell Type", y = "Proportion of Cells", fill = "Cell Cycle\nPhase") +
+  facet_wrap(~Cond, ncol = 6) + scale_fill_manual(values = c("#fb9a99", "#1f78b4", "#33a02c")) +
+  coord_flip() + scale_x_discrete(breaks = lvls[seq(1, length(lvls), by = 2)]) +
+  theme_minimal()  + theme(legend.position = "left", text = element_text(family = "sans", size = 14), legend.key.size = unit(0.125, "in"), strip.text = element_text(size = 12), panel.spacing = unit(0.1, "lines")) + 
+  scale_y_continuous(breaks = c(0, 0.5, 1), labels = c(0, 0.5, 1))
+cell_cycle_by_cell_type_2_time
+```
+```{r}
+save_plot("260623_full_cluster_by_cycling_barplot_2x.png", cell_cycle_by_cell_type_2_time, base_height = 20, base_width = 6)
+save_plot("260623_full_cluster_by_cycling_barplot_2x.svg", cell_cycle_by_cell_type_2_time, base_height = 20, base_width = 6)
+```
+
+# Read in significant results
+```{r}
+cell_cycle_propeller <- read_csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_Cell_cycle_proportions_by_cluster_propeller_results.csv")
+```
+
+# Get just significant clusters proportion data
+```{r}
+sig_cell_type_clusters <- cell_cycle_propeller %>% filter(FDR <= 0.05) %>% select(cluster) %>%
+  unique()
+sig_cluster_proportions <- filter(cell_cycle_data_phase_cell_type_2_time, short_cell_type_cluster %in% sig_cell_type_clusters$cluster)
+```
+
+# Plot it
+```{r, fig.width=3.5, fig.height=5}
+sig_cell_cycle_by_cell_type <- ggplot(sig_cluster_proportions, aes(x = short_cell_type_cluster, y = Count, fill = Cell_cycle_phase)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Cell Type", y = "Proportion of Cells", fill = "Cell Cycle\nPhase") +
+  facet_wrap(~Cond, ncol = 6) + scale_fill_manual(values = c("#fb9a99", "#1f78b4", "#33a02c")) +
+  coord_flip() +
+  theme_minimal()  + theme(legend.position = "left", text = element_text(family = "sans", size = 7), panel.spacing = unit(0.1, "lines")) + 
+  scale_y_continuous(breaks = c(0, 0.5, 1), labels = c(0, 0.5, 1))
+sig_cell_cycle_by_cell_type
+```
+```{r}
+save_plot("260623_significant_cell_cycle_changes_proportions_barplot.png", sig_cell_cycle_by_cell_type, base_height = 5, base_width = 3.5)
+save_plot("260623_significant_cell_cycle_changes_proportions_barplot.svg", sig_cell_cycle_by_cell_type, base_height = 5, base_width = 3.5)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

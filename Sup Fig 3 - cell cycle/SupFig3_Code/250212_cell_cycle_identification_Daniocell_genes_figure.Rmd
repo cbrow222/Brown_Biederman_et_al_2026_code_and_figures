@@ -1,0 +1,194 @@
+---
+title: "Alternate cell cycle scoring on whole atlas"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+library(Seurat)
+library(ggplot2)
+library(patchwork)
+library(RColorBrewer)
+library(cowplot)
+library(tidyverse)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Read in atlas
+```{r}
+atlas <- readRDS("/mnt/sequence/home/cbrown/mutant_sequencing/250820_atlas_v2_umap_model.rds")
+```
+
+# Gene lists from Sur et al (Daniocell)
+```{r}
+S <- c("mcm5", "pcna", "tyms", "mcm7", "mcm4", "rrm1", "unga","ungb", "gins2", "mcm6", "cdca7a", "dtl", "prim1", "uhrf1", "si:dkey-185e18.7", "gmnn", "hells", "ccne2", "cdc6", "rfc2", "polr1b", "nasp", "rad51ap1", "wdr76", "slbp", "ubr7", "pold3", "msh2", "atad2", "rad51", "rrm2", "cdc45", "exo1", "tipin", "dscc1", "blm", "usp1", "pola1", "chaf1b", "mrpl36", "e2f8")
+G2M <- c("cdk1", "ube2c", "birc5a","birc5b", "top2a", "tpx2", "cks2", "nuf2", "mki67", "tacc3", "cenpf", "smc4", "ckap4", "kif11", "si:ch211-69g19.2", "hmgb2b","hmgb2a", "ndc80", "cks1b", "tmpoa","tmpob", "ccnb2", "ckap2l", "aurkb", "bub1", "anp32e", "tubb4b", "gtse1", "kif20ba","kif20bb", "jpt1a","jpt1b", "cdc20", "ttk", "cdc25b","cdc25d", "kif2c", "rangap1b", "ncapd2", "dlgap5", "cdca8", "si:ch211-244o22.2", 'ect2', "kif23", "hmmr", "aurka", "anln", "lbr", "ckap5", "cenpe", "ctcf", "nek2", "g2e3", "gas2l3", "cbx5", "selenoh")
+```
+
+# Make master list
+```{r}
+cell_cycle_genes <- c(S, G2M)
+```
+
+# Set default assay to RNA
+```{r}
+DefaultAssay(atlas)<- "RNA"
+```
+
+# Use seurat tool
+```{r}
+atlas <- CellCycleScoring(atlas, s.features = S, g2m.features = G2M)
+```
+
+# Plot Phase on UMAP
+```{r}
+DimPlot(atlas, group.by = "Phase", reduction = "umap")
+```
+# Get cell cycle data by cell type
+```{r}
+cell_cycle_data_phase_cell_type <- atlas@meta.data %>% group_by(short_cell_type_cluster, Phase) %>% 
+  summarise(Count = n())
+```
+# Plot
+```{r, fig.width=23, fig.height=12}
+cell_cycle_by_cell_type <- ggplot(cell_cycle_data_phase_cell_type, aes(x = short_cell_type_cluster, y = Count, fill = Phase)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Cell type", y = "Proportion of Cells") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+cell_cycle_by_cell_type
+```
+
+# Plot S and G2M scores by sample
+```{r, fig.width=6, fig.height=4}
+S.Score_celltype <- VlnPlot(atlas, "S.Score", group.by = "sample_name", alpha = 0.02, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1")) +
+  theme(legend.position = "none", plot.title = element_blank()) + 
+  labs(x = "Sample", y = "S Phase Score") + scale_x_discrete(labels = c("t0-UF-1", "t0-UF-2", "t0-UF-3", "t1-15HF-1", "t1-15HF-2", "t1-15HF-3", "t2-30HF-1", "t2-30HF-2", "t3-60HF-1", "t3-60HF-2", "t3-60HF-3", "t4-120HF-1", "t4-120HF-2", "t5-240HF-1", "t5-240HF-2")) +
+  geom_hline(yintercept = 0.1, color = "red")
+S.Score_celltype
+```
+```{r}
+save_plot("260212_S_phase_score_by_sample.png", S.Score_celltype, base_height = 4, base_width = 6)
+save_plot("260212_S_phase_score_by_sample.svg", S.Score_celltype, base_height = 4, base_width = 6)
+```
+
+```{r, fig.width=6, fig.height=4}
+G2M.Score_celltype <- VlnPlot(atlas, "G2M.Score", group.by = "sample_name", alpha = 0.02, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1")) +
+  theme(legend.position = "none", plot.title = element_blank()) + 
+  labs(x = "Sample", y = "G2M Phase Score") + scale_x_discrete(labels = c("t0-UF-1", "t0-UF-2", "t0-UF-3", "t1-15HF-1", "t1-15HF-2", "t1-15HF-3", "t2-30HF-1", "t2-30HF-2", "t3-60HF-1", "t3-60HF-2", "t3-60HF-3", "t4-120HF-1", "t4-120HF-2", "t5-240HF-1", "t5-240HF-2")) +
+  geom_hline(yintercept = 0.1, color = "red")
+G2M.Score_celltype
+```
+```{r}
+save_plot("260212_G2M_phase_score_by_sample.png", G2M.Score_celltype, base_height = 4, base_width = 6)
+save_plot("260212_G2M_phase_score_by_sample.svg", G2M.Score_celltype, base_height = 4, base_width = 6)
+```
+
+# Adjust phase calling thresholds
+```{r}
+atlas@meta.data <- atlas@meta.data %>%
+  mutate(Cell_cycle_phase = case_when(
+    S.Score >= 0.1 & S.Score >= G2M.Score ~ "S",
+    G2M.Score >= 0.1 & G2M.Score > S.Score ~ "G2M",
+    .default = "G1"
+  ))
+```
+
+# Get cell cycle data by cell type
+```{r}
+cell_cycle_data_phase_cell_type_2 <- atlas@meta.data %>% group_by(tree_clusters, Cell_cycle_phase) %>% 
+  summarise(Count = n())
+```
+# Plot
+```{r, fig.width=4, fig.height=25}
+cell_cycle_by_cell_type_2 <- ggplot(cell_cycle_data_phase_cell_type_2, aes(x = tree_clusters, y = Count, fill = Cell_cycle_phase)) + 
+  geom_bar(position = "stack", stat = "identity") + 
+  labs(x = "Hierarchical Cluster", y = "Number of Cells") +
+  theme_minimal() + theme(legend.position = "inside", legend.position.inside = c(0.8, 0.5)) +
+  scale_fill_brewer(palette = "Set1") + coord_flip()
+cell_cycle_by_cell_type_2
+```
+```{r}
+save_plot("260212_Cell_cycle_phase_count_by_cluster.png", cell_cycle_by_cell_type_2, base_height = 25, base_width = 4)
+save_plot("260212_Cell_cycle_phase_count_by_cluster.png", cell_cycle_by_cell_type_2, base_height = 25, base_width = 4)
+```
+
+# Proportion cycling by time
+```{r}
+cell_cycle_data_phase_cell_type_2_time <- atlas@meta.data %>% group_by(tree_clusters, Cell_cycle_phase, condition) %>% 
+  summarise(Count = n())
+```
+```{r, fig.height=25, fig.width=14}
+cell_cycle_by_cell_type_2_time <- ggplot(cell_cycle_data_phase_cell_type_2_time, aes(x = tree_clusters, y = Count, fill = Cell_cycle_phase)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Hierarchical Cluster", y = "Proportion of Cells") +
+  facet_wrap(~condition, ncol = 6) + scale_fill_brewer(palette = "Set1") + coord_flip() +
+  theme_minimal()  + theme(legend.position = "left")
+cell_cycle_by_cell_type_2_time
+```
+```{r}
+save_plot("260212_Cell_cylce_phase_proportions_by_condition.png", cell_cycle_by_cell_type_2_time, base_width = 14, base_height = 25)
+save_plot("260212_Cell_cylce_phase_proportions_by_condition.svg", cell_cycle_by_cell_type_2_time, base_width = 14, base_height = 25)
+```
+
+# Try running propellor to test for clusters changing proportion over time
+```{r, message=FALSE}
+library(speckle, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+# Loop through clusters to run propeller test for each
+```{r}
+clusters <- unique(atlas$short_cell_type_cluster)
+propeller_results <- NULL
+for (cluster in clusters) {
+  tryCatch({cluster_set <- subset(atlas, short_cell_type_cluster == cluster)
+  logit_propeller <- propeller(clusters = cluster_set$Cell_cycle_phase, sample = cluster_set$orig.ident, group = cluster_set$condition)
+  logit_propeller$cluster <- cluster
+  logit_propeller <- rownames_to_column(logit_propeller, var = "Phase")
+  propeller_results <- rbind(propeller_results, logit_propeller)
+  },
+  error = function(err){
+    print(cluster)
+  })
+}
+filtered_propeller <- filter(propeller_results, FDR <= 0.05)
+```
+# Save the propeller results
+```{r}
+write_csv(propeller_results, "260212_Cell_cycle_proportions_by_cluster_propeller_results.csv")
+```
+
+# Remove seurat cell cycle phase
+```{r}
+atlas$Phase <- NULL
+```
+
+# Save this atlas copy
+```{r}
+saveRDS(atlas, "260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+# Print significant propeller results
+```{r}
+filtered_propeller
+```
+```{r}
+unique(filtered_propeller$cluster)
+```
+```{r}
+separate_wider_delim(filtered_propeller, delim = "_", names = c("celltype", "cluster_number"), cols = "cluster") %>% select("cluster_number") %>% unique() %>% unlist() %>% 
+  as.numeric() %>% sort()
+```
+
+# Summary
+This gives me the cell cycle results, what should be the GEO submission for the atlas, and a test of if any cell types are changing in their cycling status by time.
+
+
+# Session info
+```{r}
+sessionInfo()
+```
+

@@ -1,0 +1,766 @@
+---
+title: "MB4-26_denovo_RPCA_25mt_M3MADupc_M3MADgpc_200gpc_v1_corrected"
+author: "Michelle Biederman"
+date: "6/9/23"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+6-15-23: All products were based on 173 PCs.  UMAP had previously been created with dimenstions 1:153.  All other workflow steps (ScaleData, RunPCA, FindNeighbors, and FindClusters) used dimensions 1:173.  I made an updated dimplot with UMI set to 173.  All other products remain the same.
+
+6-9-23: on 6-2-23 I didn't properly add nFeature_RNA_M3MAD column to metadata and incorrectly subsetted nFeature_RNA < nCount_RNA_M3MAD instead of nFeature_RNA < nFeature_RNA_M3MAD.  Updated to more recent jackstraw indicating 173 sig PCs.
+
+1. RPCA integrate all samples MB4-26.
+  * elbow plot and Jackstraw to determine # of PCs determined from previous work = 153 PCs
+2. Cluster at multiple resolutions
+  * tissue/organ organization 
+  * cell-type organization (benchmarked by germline pre-cursors clustering separately)
+
+QC subset: 
+  * < 25% mt
+  * < median + 3 MAD UMIs per cell
+  * < median + 3 MAD genes per cell
+  * > 200 genes per cell
+  
+Normalization: log norm 10000
+
+Variable feature selection: 2000
+
+[Satija lab vignette - Fast integration using reciprocal PCA (RPCA)](https://satijalab.org/seurat/articles/integration_rpca.html)
+
+[Satija lab vignette - aggregated feature expression by identity class](https://satijalab.org/seurat/reference/aggregateexpression)
+
+# Data preparation
+
+## Loaded .libPaths
+
+```{r}
+.libPaths( "/apps/R/4.2.2/seurat/4.3.0")
+.libPaths()
+```
+
+## Loaded libraries
+
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(RColorBrewer)
+library(cowplot)
+library(tidyverse)
+library(writexl)
+```
+
+## Loaded MB4, MB5, MB6, MB9, MB10, MB11, MB12, MB13, MB14, MB15, MB16, MB23, MB24, MB25, and MB26 Ensembl data
+
+```{r}
+query_data_MB4<-Read10X("/mnt/sequence/10x/MB4_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB5<-Read10X("/mnt/sequence/10x/MB5_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB6<-Read10X("/mnt/sequence/10x/MB6_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB9<-Read10X("/mnt/sequence/10x/MB9_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB10<-Read10X("/mnt/sequence/10x/MB10_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB11<-Read10X("/mnt/sequence/10x/MB11_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB12<-Read10X("/mnt/sequence/10x/MB12_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB13<-Read10X("/mnt/sequence/10x/MB13_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB14<-Read10X("/mnt/sequence/10x/MB14_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB15<-Read10X("/mnt/sequence/10x/MB15_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB16<-Read10X("/mnt/sequence/10x/MB16_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB23<-Read10X("/mnt/sequence/10x/MB23_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB24<-Read10X("/mnt/sequence/10x/MB24_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB25<-Read10X("/mnt/sequence/10x/MB25_count/outs/filtered_feature_bc_matrix")
+```
+
+```{r}
+query_data_MB26<-Read10X("/mnt/sequence/10x/MB26_count/outs/filtered_feature_bc_matrix")
+```
+
+## Created Seurat objects
+
+```{r, message=FALSE, results=FALSE}
+query_seurat_MB4 <- CreateSeuratObject( query_data_MB4, project = "MB4" )
+query_seurat_MB5 <- CreateSeuratObject( query_data_MB5, project = "MB5" )
+query_seurat_MB6 <- CreateSeuratObject( query_data_MB6, project = "MB6" )
+query_seurat_MB9 <- CreateSeuratObject( query_data_MB9, project = "MB9" )
+query_seurat_MB10 <- CreateSeuratObject( query_data_MB10, project = "MB10" )
+query_seurat_MB11 <- CreateSeuratObject( query_data_MB11, project = "MB11" )
+query_seurat_MB12 <- CreateSeuratObject( query_data_MB12, project = "MB12" )
+query_seurat_MB13 <- CreateSeuratObject( query_data_MB13, project = "MB13" )
+query_seurat_MB14 <- CreateSeuratObject( query_data_MB14, project = "MB14" )
+query_seurat_MB15 <- CreateSeuratObject( query_data_MB15, project = "MB15" )
+query_seurat_MB16 <- CreateSeuratObject( query_data_MB16, project = "MB16" )
+query_seurat_MB23 <- CreateSeuratObject( query_data_MB23, project = "MB23" )
+query_seurat_MB24 <- CreateSeuratObject( query_data_MB24, project = "MB24" )
+query_seurat_MB25 <- CreateSeuratObject( query_data_MB25, project = "MB25" )
+query_seurat_MB26 <- CreateSeuratObject( query_data_MB26, project = "MB26" )
+```
+
+## Cleaned up
+
+```{r}
+rm(query_data_MB4)
+rm(query_data_MB6)
+rm(query_data_MB5)
+rm(query_data_MB9)
+rm(query_data_MB10)
+rm(query_data_MB11)
+rm(query_data_MB12)
+rm(query_data_MB13)
+rm(query_data_MB14)
+rm(query_data_MB15)
+rm(query_data_MB16)
+rm(query_data_MB23)
+rm(query_data_MB24)
+rm(query_data_MB25)
+rm(query_data_MB26)
+gc()
+```
+
+## Check objects
+
+```{r}
+query_seurat_MB4
+query_seurat_MB5
+query_seurat_MB6
+query_seurat_MB9
+query_seurat_MB10
+query_seurat_MB11
+query_seurat_MB12
+query_seurat_MB13
+query_seurat_MB14
+query_seurat_MB15
+query_seurat_MB16
+query_seurat_MB23
+query_seurat_MB24
+query_seurat_MB25
+query_seurat_MB26
+```
+
+## Added column "sample_name"
+
+In case I want to display results by sample name.  This is not a good order for plotting.
+```{r}
+query_seurat_MB4@meta.data$sample_name <-query_seurat_MB4@meta.data[1:length(query_seurat_MB4@meta.data),"sample_name"] <- "t0_sample3_UF"
+query_seurat_MB5@meta.data$sample_name <-query_seurat_MB5@meta.data[1:length(query_seurat_MB5@meta.data),"sample_name"] <- "t2_sample7_30HF"
+query_seurat_MB6@meta.data$sample_name <-query_seurat_MB6@meta.data[1:length(query_seurat_MB6@meta.data),"sample_name"] <- "t0_sample1_UF"
+query_seurat_MB9@meta.data$sample_name <-query_seurat_MB9@meta.data[1:length(query_seurat_MB9@meta.data),"sample_name"] <- "t2_sample8_30HF"
+query_seurat_MB10@meta.data$sample_name <-query_seurat_MB10@meta.data[1:length(query_seurat_MB10@meta.data),"sample_name"] <- "t3_sample9_60HF"
+query_seurat_MB11@meta.data$sample_name <-query_seurat_MB11@meta.data[1:length(query_seurat_MB11@meta.data),"sample_name"] <- "t0_sample2_UF"
+query_seurat_MB12@meta.data$sample_name <-query_seurat_MB12@meta.data[1:length(query_seurat_MB12@meta.data),"sample_name"] <- "t4_sample12_120HF"
+query_seurat_MB13@meta.data$sample_name <-query_seurat_MB13@meta.data[1:length(query_seurat_MB13@meta.data),"sample_name"] <- "t3_sample10_60HF"
+query_seurat_MB14@meta.data$sample_name <-query_seurat_MB14@meta.data[1:length(query_seurat_MB14@meta.data),"sample_name"] <- "t5_sample14_240HF"
+query_seurat_MB15@meta.data$sample_name <-query_seurat_MB15@meta.data[1:length(query_seurat_MB15@meta.data),"sample_name"] <- "t4_sample13_120HF"
+query_seurat_MB16@meta.data$sample_name <-query_seurat_MB16@meta.data[1:length(query_seurat_MB16@meta.data),"sample_name"] <- "t5_sample15_240HF"
+query_seurat_MB23@meta.data$sample_name <-query_seurat_MB23@meta.data[1:length(query_seurat_MB23@meta.data),"sample_name"] <- "t3_sample11_60HF"
+query_seurat_MB24@meta.data$sample_name <-query_seurat_MB24@meta.data[1:length(query_seurat_MB24@meta.data),"sample_name"] <- "t1_sample4_15HF"
+query_seurat_MB25@meta.data$sample_name <-query_seurat_MB25@meta.data[1:length(query_seurat_MB25@meta.data),"sample_name"] <- "t1_sample5_15HF"
+query_seurat_MB26@meta.data$sample_name <-query_seurat_MB26@meta.data[1:length(query_seurat_MB26@meta.data),"sample_name"] <- "t1_sample6_15HF"
+```
+
+## Added column "condition"
+
+Because I want my conditions to plot in the right order, I am adding a number to the beginning of each.  This will add complications because I have to use the ` to enclose them because R doesn't like certain terms that start with a number, but I'm doing it anyway, for now.
+
+```{r}
+query_seurat_MB4@meta.data$condition <-query_seurat_MB4@meta.data[1:length(query_seurat_MB4@meta.data),"condition"] <- "t0_UF"
+query_seurat_MB5@meta.data$condition <-query_seurat_MB5@meta.data[1:length(query_seurat_MB5@meta.data),"condition"] <- "t2_30HF"
+query_seurat_MB6@meta.data$condition <-query_seurat_MB6@meta.data[1:length(query_seurat_MB6@meta.data),"condition"] <- "t0_UF"
+query_seurat_MB9@meta.data$condition <-query_seurat_MB9@meta.data[1:length(query_seurat_MB9@meta.data),"condition"] <- "t2_30HF"
+query_seurat_MB10@meta.data$condition <-query_seurat_MB10@meta.data[1:length(query_seurat_MB10@meta.data),"condition"] <- "t3_60HF"
+query_seurat_MB11@meta.data$condition <-query_seurat_MB11@meta.data[1:length(query_seurat_MB11@meta.data),"condition"] <- "t0_UF"
+query_seurat_MB12@meta.data$condition <-query_seurat_MB12@meta.data[1:length(query_seurat_MB12@meta.data),"condition"] <- "t4_120HF"
+query_seurat_MB13@meta.data$condition <-query_seurat_MB13@meta.data[1:length(query_seurat_MB13@meta.data),"condition"] <- "t3_60HF"
+query_seurat_MB14@meta.data$condition <-query_seurat_MB14@meta.data[1:length(query_seurat_MB14@meta.data),"condition"] <- "t5_240HF"
+query_seurat_MB15@meta.data$condition <-query_seurat_MB15@meta.data[1:length(query_seurat_MB15@meta.data),"condition"] <- "t4_120HF"
+query_seurat_MB16@meta.data$condition <-query_seurat_MB16@meta.data[1:length(query_seurat_MB16@meta.data),"condition"] <- "t5_240HF"
+query_seurat_MB23@meta.data$condition <-query_seurat_MB23@meta.data[1:length(query_seurat_MB23@meta.data),"condition"] <- "t3_60HF"
+query_seurat_MB24@meta.data$condition <-query_seurat_MB24@meta.data[1:length(query_seurat_MB24@meta.data),"condition"] <- "t1_15HF"
+query_seurat_MB25@meta.data$condition <-query_seurat_MB25@meta.data[1:length(query_seurat_MB25@meta.data),"condition"] <- "t1_15HF"
+query_seurat_MB26@meta.data$condition <-query_seurat_MB26@meta.data[1:length(query_seurat_MB26@meta.data),"condition"] <- "t1_15HF"
+```
+
+# Calculate percent.mt column
+
+```{r}
+query_seurat_MB4 <- PercentageFeatureSet(query_seurat_MB4, "^mt-", col.name = "percent.mt")
+query_seurat_MB5 <- PercentageFeatureSet(query_seurat_MB5, "^mt-", col.name = "percent.mt")
+query_seurat_MB6 <- PercentageFeatureSet(query_seurat_MB6, "^mt-", col.name = "percent.mt")
+query_seurat_MB9 <- PercentageFeatureSet(query_seurat_MB9, "^mt-", col.name = "percent.mt")
+query_seurat_MB10 <- PercentageFeatureSet(query_seurat_MB10, "^mt-", col.name = "percent.mt")
+query_seurat_MB11 <- PercentageFeatureSet(query_seurat_MB11, "^mt-", col.name = "percent.mt")
+query_seurat_MB12 <- PercentageFeatureSet(query_seurat_MB12, "^mt-", col.name = "percent.mt")
+query_seurat_MB13 <- PercentageFeatureSet(query_seurat_MB13, "^mt-", col.name = "percent.mt")
+query_seurat_MB14 <- PercentageFeatureSet(query_seurat_MB14, "^mt-", col.name = "percent.mt")
+query_seurat_MB15 <- PercentageFeatureSet(query_seurat_MB15, "^mt-", col.name = "percent.mt")
+query_seurat_MB16 <- PercentageFeatureSet(query_seurat_MB16, "^mt-", col.name = "percent.mt")
+query_seurat_MB23 <- PercentageFeatureSet(query_seurat_MB23, "^mt-", col.name = "percent.mt")
+query_seurat_MB24 <- PercentageFeatureSet(query_seurat_MB24, "^mt-", col.name = "percent.mt")
+query_seurat_MB25 <- PercentageFeatureSet(query_seurat_MB25, "^mt-", col.name = "percent.mt")
+query_seurat_MB26 <- PercentageFeatureSet(query_seurat_MB26, "^mt-", col.name = "percent.mt")
+```
+
+# Calculate Count and Feature MADs median + 3MAD UMIs and *genes per cell* upper thresholds{.tabset}
+
+## MB6
+
+```{r}
+query_seurat_MB6@meta.data <- query_seurat_MB6@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB6$nFeature_RNA) + 3*mad(query_seurat_MB6$nFeature_RNA, center = median(query_seurat_MB6$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB6$nCount_RNA) +3*mad(query_seurat_MB6$nCount_RNA, center = median(query_seurat_MB6$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB6@meta.data)
+```
+
+## MB11
+
+```{r}
+query_seurat_MB11@meta.data <- query_seurat_MB11@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB11$nFeature_RNA) + 3*mad(query_seurat_MB11$nFeature_RNA, center = median(query_seurat_MB11$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB11$nCount_RNA) +3*mad(query_seurat_MB11$nCount_RNA, center = median(query_seurat_MB11$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB11@meta.data)
+```
+
+## MB4
+
+```{r}
+query_seurat_MB4@meta.data <- query_seurat_MB4@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB4$nFeature_RNA) + 3*mad(query_seurat_MB4$nFeature_RNA, center = median(query_seurat_MB4$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB4$nCount_RNA) +3*mad(query_seurat_MB4$nCount_RNA, center = median(query_seurat_MB4$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB4@meta.data)
+```
+
+## MB24
+
+```{r}
+query_seurat_MB24@meta.data <- query_seurat_MB24@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB24$nFeature_RNA) + 3*mad(query_seurat_MB24$nFeature_RNA, center = median(query_seurat_MB24$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB24$nCount_RNA) +3*mad(query_seurat_MB24$nCount_RNA, center = median(query_seurat_MB24$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB24@meta.data)
+```
+
+## MB25
+
+```{r}
+query_seurat_MB25@meta.data <- query_seurat_MB25@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB25$nFeature_RNA) + 3*mad(query_seurat_MB25$nFeature_RNA, center = median(query_seurat_MB25$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB25$nCount_RNA) +3*mad(query_seurat_MB25$nCount_RNA, center = median(query_seurat_MB25$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB25@meta.data)
+```
+
+## MB26
+
+```{r}
+query_seurat_MB26@meta.data <- query_seurat_MB26@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB26$nFeature_RNA) + 3*mad(query_seurat_MB26$nFeature_RNA, center = median(query_seurat_MB26$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB26$nCount_RNA) +3*mad(query_seurat_MB26$nCount_RNA, center = median(query_seurat_MB26$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB26@meta.data)
+```
+
+## MB5
+
+```{r}
+query_seurat_MB5@meta.data <- query_seurat_MB5@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB5$nFeature_RNA) + 3*mad(query_seurat_MB5$nFeature_RNA, center = median(query_seurat_MB5$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB5$nCount_RNA) +3*mad(query_seurat_MB5$nCount_RNA, center = median(query_seurat_MB5$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB5@meta.data)
+```
+
+## MB9
+
+```{r}
+query_seurat_MB9@meta.data <- query_seurat_MB9@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB9$nFeature_RNA) + 3*mad(query_seurat_MB9$nFeature_RNA, center = median(query_seurat_MB9$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB9$nCount_RNA) +3*mad(query_seurat_MB9$nCount_RNA, center = median(query_seurat_MB9$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB9@meta.data)
+```
+
+## MB10
+
+```{r}
+query_seurat_MB10@meta.data <- query_seurat_MB10@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB10$nFeature_RNA) + 3*mad(query_seurat_MB10$nFeature_RNA, center = median(query_seurat_MB10$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB10$nCount_RNA) +3*mad(query_seurat_MB10$nCount_RNA, center = median(query_seurat_MB10$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB10@meta.data)
+```
+
+## MB13
+
+```{r}
+query_seurat_MB13@meta.data <- query_seurat_MB13@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB13$nFeature_RNA) + 3*mad(query_seurat_MB13$nFeature_RNA, center = median(query_seurat_MB13$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB13$nCount_RNA) +3*mad(query_seurat_MB13$nCount_RNA, center = median(query_seurat_MB13$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB13@meta.data)
+```
+
+## MB23
+
+```{r}
+query_seurat_MB23@meta.data <- query_seurat_MB23@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB23$nFeature_RNA) + 3*mad(query_seurat_MB23$nFeature_RNA, center = median(query_seurat_MB23$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB23$nCount_RNA) +3*mad(query_seurat_MB23$nCount_RNA, center = median(query_seurat_MB23$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB23@meta.data)
+```
+
+## MB12
+
+```{r}
+query_seurat_MB12@meta.data <- query_seurat_MB12@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB12$nFeature_RNA) + 3*mad(query_seurat_MB12$nFeature_RNA, center = median(query_seurat_MB12$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB12$nCount_RNA) +3*mad(query_seurat_MB12$nCount_RNA, center = median(query_seurat_MB12$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB12@meta.data)
+```
+
+## MB15
+
+```{r}
+query_seurat_MB15@meta.data <- query_seurat_MB15@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB15$nFeature_RNA) + 3*mad(query_seurat_MB15$nFeature_RNA, center = median(query_seurat_MB15$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB15$nCount_RNA) +3*mad(query_seurat_MB15$nCount_RNA, center = median(query_seurat_MB15$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB15@meta.data)
+```
+
+## MB14
+
+```{r}
+query_seurat_MB14@meta.data <- query_seurat_MB14@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB14$nFeature_RNA) + 3*mad(query_seurat_MB14$nFeature_RNA, center = median(query_seurat_MB14$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB14$nCount_RNA) +3*mad(query_seurat_MB14$nCount_RNA, center = median(query_seurat_MB14$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB14@meta.data)
+```
+
+## MB16
+
+```{r}
+query_seurat_MB16@meta.data <- query_seurat_MB16@meta.data %>%
+  mutate(nFeature_RNA_M3MAD = median(query_seurat_MB16$nFeature_RNA) + 3*mad(query_seurat_MB16$nFeature_RNA, center = median(query_seurat_MB16$nFeature_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE)) %>%
+  mutate(nCount_RNA_M3MAD = median(query_seurat_MB16$nCount_RNA) +3*mad(query_seurat_MB16$nCount_RNA, center = median(query_seurat_MB16$nCount_RNA), constant = 1.4826, na.rm = FALSE,
+    low = FALSE, high = FALSE))
+```
+
+```{r}
+head(query_seurat_MB16@meta.data)
+```
+
+# Save unfiltered objects
+
+```{r}
+saveRDS(query_seurat_MB6,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample1_UF_MB6_corrected.rds")
+saveRDS(query_seurat_MB11,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample2_UF_MB11_corrected.rds")
+saveRDS(query_seurat_MB4,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample3_UF_MB4_corrected.rds")
+saveRDS(query_seurat_MB24,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample4_15_MB24_corrected.rds")
+saveRDS(query_seurat_MB25,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample5_15_MB25_corrected.rds")
+saveRDS(query_seurat_MB26,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample6_15_MB26_corrected.rds")
+saveRDS(query_seurat_MB5,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample7_30_MB5_corrected.rds")
+saveRDS(query_seurat_MB9,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample8_30_MB9_corrected.rds")
+saveRDS(query_seurat_MB10,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample9_60_MB10_corrected.rds")
+saveRDS(query_seurat_MB13,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample10_60_MB13_corrected.rds")
+saveRDS(query_seurat_MB23,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample11_60_MB23_corrected.rds")
+saveRDS(query_seurat_MB12,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample12_120_MB12_corrected.rds")
+saveRDS(query_seurat_MB15,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample13_120_MB15_corrected.rds")
+saveRDS(query_seurat_MB14,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample14_240_MB14_corrected.rds")
+saveRDS(query_seurat_MB16,"/mnt/sequence/home/biederman/230602_v1/unfiltered/230602_sample15_240_MB16_corrected.rds")
+```
+
+# Subset < 25% mt, < median + 3 MAD UMIs per cell, < median + 3 MAD genes per cell, > 200 genes per cell
+
+```{r}
+query_seurat_MB4_F <- subset(query_seurat_MB4, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB5_F <- subset(query_seurat_MB5, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB6_F <- subset(query_seurat_MB6,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB9_F <- subset(query_seurat_MB9, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB10_F <- subset(query_seurat_MB10,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB11_F <- subset(query_seurat_MB11,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB12_F <- subset(query_seurat_MB12, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB13_F <- subset(query_seurat_MB13, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB14_F <- subset(query_seurat_MB14,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB15_F <- subset(query_seurat_MB15, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB16_F <- subset(query_seurat_MB16,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB23_F <- subset(query_seurat_MB23,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB24_F <- subset(query_seurat_MB24, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB25_F <- subset(query_seurat_MB25, percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+query_seurat_MB26_F <- subset(query_seurat_MB26,percent.mt < 25 & nCount_RNA < nCount_RNA_M3MAD & nFeature_RNA < nFeature_RNA_M3MAD & nFeature_RNA > 200)
+```
+
+# Confirm subsets and total filtered nuclei
+
+```{r}
+query_seurat_MB4_F
+query_seurat_MB5_F
+query_seurat_MB6_F
+query_seurat_MB9_F
+query_seurat_MB10_F
+query_seurat_MB11_F
+query_seurat_MB12_F
+query_seurat_MB13_F
+query_seurat_MB14_F
+query_seurat_MB15_F
+query_seurat_MB16_F
+query_seurat_MB23_F
+query_seurat_MB24_F
+query_seurat_MB25_F
+query_seurat_MB26_F
+```
+
+# Save filtered objects
+
+```{r}
+saveRDS(query_seurat_MB6_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample1_UF_MB6_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB11_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample2_UF_MB11_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB4_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample3_UF_MB4_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB24_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample4_15_MB24_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB25_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample5_15_MB25_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB26_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample6_15_MB26_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB5_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample7_30_MB5_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB9_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample8_30_MB9_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB10_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample9_60_MB10_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB13_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample10_60_MB13_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB23_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample11_60_MB23_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB12_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample12_120_MB12_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB15_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample13_120_MB15_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB14_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample14_240_MB14_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+saveRDS(query_seurat_MB16_F,"/mnt/sequence/home/biederman/230602_v1/filtered/230602_sample15_240_MB16_25mt_200gpc_M3MADgpc_M3MADupc_corrected.rds")
+```
+
+## Cleaned up
+
+```{r}
+rm(query_seurat_MB4)
+rm(query_seurat_MB6)
+rm(query_seurat_MB5)
+rm(query_seurat_MB9)
+rm(query_seurat_MB10)
+rm(query_seurat_MB11)
+rm(query_seurat_MB12)
+rm(query_seurat_MB13)
+rm(query_seurat_MB14)
+rm(query_seurat_MB15)
+rm(query_seurat_MB16)
+rm(query_seurat_MB23)
+rm(query_seurat_MB24)
+rm(query_seurat_MB25)
+rm(query_seurat_MB26)
+gc()
+```
+
+# combine samples into list
+
+```{r}
+MB.list <- c(query_seurat_MB6_F, query_seurat_MB11_F, query_seurat_MB4_F,query_seurat_MB24_F, query_seurat_MB25_F, query_seurat_MB26_F,query_seurat_MB5_F, query_seurat_MB9_F, query_seurat_MB10_F,query_seurat_MB13_F, query_seurat_MB23_F, query_seurat_MB12_F,query_seurat_MB15_F, query_seurat_MB14_F, query_seurat_MB16_F)
+```
+
+## Confirm list
+
+```{r}
+MB.list
+```
+
+# Normalization and Finding Variable Features
+
+After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method “LogNormalize” that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and log-transforms the result. Normalized values are stored in pbmc[["RNA"]]@data.
+
+We next calculate a subset of features that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). We and others have found that focusing on these genes in downstream analysis helps to highlight biological signal in single-cell datasets.
+
+Our procedure in Seurat is described in detail here, and improves on previous versions by directly modeling the mean-variance relationship inherent in single-cell data, and is implemented in the FindVariableFeatures() function. By default, we return 2,000 features per dataset. These will be used in downstream analysis, like PCA.
+
+```{r, message = FALSE, results = FALSE}
+for (i in 1:length(MB.list)) {
+    MB.list[[i]] <- NormalizeData(MB.list[[i]], verbose = FALSE)
+    MB.list[[i]] <- FindVariableFeatures(MB.list[[i]], selection.method = "vst", 
+        nfeatures = 2000, verbose = FALSE)
+}
+```
+
+# select integration features, scale data, Run PCA
+
+features that are repeatedly variable across datasets for integration run PCA on each
+
+```{r}
+features <- SelectIntegrationFeatures(object.list = MB.list)
+MB.list <- lapply(X = MB.list, FUN = function(x) {
+    x <- ScaleData(x, features = features, verbose = FALSE)
+    x <- RunPCA(x, features = features, verbose = FALSE)
+})
+```
+
+# RPCA integration
+
+## Find integration Anchors
+
+```{r}
+MB.anchors <- FindIntegrationAnchors(object.list = MB.list, anchor.features = features, reduction = "rpca")
+```
+
+## Integrate
+
+```{r}
+MB.combined <- IntegrateData(anchorset = MB.anchors)
+```
+
+## Clean up
+
+```{r}
+rm(MB.anchors)
+rm(MB.list)
+gc()
+```
+
+# Change to "integrated" assay
+
+specify that we will perform downstream analysis on the corrected data note that the
+original unmodified data still resides in the 'RNA' assay
+
+```{r}
+DefaultAssay(MB.combined) <- "integrated"
+```
+
+# Check integrated object
+
+```{r}
+MB.combined
+```
+
+# Run the standard workflow for visualization and clustering
+
+regressed out %mt and UMIs
+```{r}
+MB.combined <- ScaleData(MB.combined, vars.to.regress = c("percent.mt","nCount_RNA"), verbose = FALSE)
+MB.combined <- RunPCA(MB.combined, npcs = 173, verbose = FALSE)
+MB.combined <- RunUMAP(MB.combined, reduction = "pca", dims = 1:173)
+MB.combined <- FindNeighbors(MB.combined, reduction = "pca", dims = 1:173)
+```
+
+# Double check # PCs to include
+
+300 PCs seems like a good place to start.
+
+## Elbow plot
+
+```{r}
+ElbowPlot(MB.combined, ndims = 300, reduction = "pca")
+```
+
+### Double check Jackstraw plot (optional)
+
+Made a jackstraw plot like in the Farnsworth paper with my 300 PCs
+```{r, message=FALSE, results=FALSE}
+#MB.combined <- JackStraw(MB.combined, reduction = "pca", dims = 200, num.replicate = 25, verbose = TRUE)
+```
+
+```{r}
+#MB.combined <- ScoreJackStraw(MB.combined, dims = 1:200)
+```
+
+Plotted jackstraw
+```{r, fig.height = 20, fig.width = 10}
+#JackStrawPlot(MB.combined, reduction = "pca", dims = 1:200) + theme(legend.position = "bottom")
+```
+
+### Save integrated .rds
+
+```{r}
+saveRDS(MB.combined, file = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_corrected.rds")
+```
+
+# Try UMAPs of different resolutions{.tabset}
+
+## Resolution = 20
+
+```{r, message = FALSE, results=FALSE}
+DefaultAssay(MB.combined) <- "integrated"
+MB.combined <- FindClusters(MB.combined, resolution = 20, verbose = TRUE)
+MB.combined <- RunUMAP(MB.combined, reduction = "pca", dims = 1:173)
+```
+
+```{r, fig.width=10, fig.height=16}
+p1 <- DimPlot(MB.combined, reduction = "umap", group.by = "seurat_clusters", label=TRUE, label.size = 4, repel = TRUE, raster=FALSE) + theme(legend.position = "bottom")
+p1
+```
+
+# save plot
+
+```{r, fig.width=10, fig.height=16}
+save_plot("230602_v1_RPCA_integrated_res_20_UMAP.png", p1, base_height = 10, base_width = 5, )
+```
+
+# table
+
+```{r}
+Cells <- table(MB.combined$seurat_clusters)
+xnames <- names(Cells)
+Percent <- round(((prop.table(Cells))*100),2)
+MB.table <- cbind(Cells,Percent)
+MB.table
+```
+
+# save rds
+
+```{r}
+saveRDS(MB.combined, file = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_corrected.rds")
+```
+
+# Aggregate expression
+
+```{r}
+agg_res_20 <- AggregateExpression(object = MB.combined, assays = "RNA", group.by = "seurat_clusters")
+genes<-rownames(agg_res_20$RNA)
+agg_res_20 <- as.data.frame(agg_res_20, row.names = genes)
+agg_res_20 <- cbind(genes,agg_res_20)
+head(agg_res_20)
+```
+
+# write aggregated expression Excel
+
+```{r}
+write_xlsx(agg_res_20, path = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_agg_res_20_corrected.xlsx")
+```
+
+# find markers for every cluster compared to all remaining cells, report only the positive ones
+
+```{r}
+DefaultAssay(MB.combined) <- "RNA"
+MB.markers <- FindAllMarkers(MB.combined, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+MB.markers %>%
+    group_by(cluster) %>%
+    top_n(n = 20, wt = avg_log2FC) -> top20
+#top20
+```
+
+# write top20 Excel
+
+```{r}
+write_xlsx(top20, path = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_res_20_top20_corrected.xlsx")
+write_xlsx(MB.markers, path = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_res_20_markers_corrected.xlsx")
+```
+
+# write gene set csv for cellxgene
+
+```{r}
+top20_csv <- as_tibble(top20) %>% 
+  select(cluster,gene)
+top20_csv$gene_set_name <- top20_csv$cluster
+top20_csv$gene_symbol <- top20_csv$gene
+top20_csv <- add_column(top20_csv, gene_set_description = NA,
+             gene_description = NA)
+top20_csv <- top20_csv %>% select(gene_set_name, gene_set_description, gene_symbol, gene_description)
+top20_csv
+write.csv(top20_csv, file = "/mnt/sequence/home/biederman/230602_v1/filtered/230602_25mt_200gpc_M3MADgpc_M3MADupc_RPCA_integrated_res_20_top20_marker_gene-set_corrected.csv", row.names = FALSE, fileEncoding = "ASCII")
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```

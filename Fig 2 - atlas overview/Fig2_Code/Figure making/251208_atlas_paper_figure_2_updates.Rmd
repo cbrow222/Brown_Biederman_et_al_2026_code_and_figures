@@ -1,0 +1,269 @@
+---
+title: "Atlas paper QC and annotation figure"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+library(ggVennDiagram, lib="/home/cbrown/R/x86_64-pc-linux-gnu-library/4.3/")
+``` 
+
+# Read in atlas
+```{r}
+atlas <- readRDS("/mnt/sequence/home/cbrown/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Make plot highlighting times into a vertical version
+```{r}
+t0_UF.cells <-subset(atlas, condition == "t0_UF")
+t0_UF.UMAP <- DimPlot(atlas,
+                      na.value = "grey10",
+                      reduction = "umap",
+                      label=FALSE,  
+                      raster=FALSE,
+                      cells.highlight = colnames(t0_UF.cells),
+                      cols.highlight = "hotpink1",
+                      sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("Unfed")
+t0_UF.UMAP
+```
+```{r}
+t1_15HF.cells <-subset(atlas, condition == "t1_15HF")
+t1_15HF.UMAP <- DimPlot(atlas,
+                      na.value = "grey10",
+                      reduction = "umap",
+                      label=FALSE,  
+                      raster=FALSE,
+                      cells.highlight = colnames(t1_15HF.cells),
+                      cols.highlight = "orange",
+                      sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("15 min")
+t1_15HF.UMAP
+```
+```{r}
+t2_30HF.cells <-subset(atlas, condition == "t2_30HF")
+t2_30HF.UMAP <- DimPlot(atlas, 
+                        na.value = "grey10",
+                        reduction = "umap",
+                        label=FALSE,
+                        raster=FALSE,
+                        cells.highlight = colnames(t2_30HF.cells),
+                        cols.highlight = "yellow2",
+                        sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("30 min")
+t2_30HF.UMAP
+```
+```{r}
+t3_60HF.cells <-subset(atlas, condition == "t3_60HF")
+t3_60HF.UMAP <- DimPlot(atlas,
+                        na.value = "grey10",
+                        reduction = "umap",
+                        label=FALSE,  raster=FALSE,
+                        cells.highlight = colnames(t3_60HF.cells),
+                        cols.highlight = "lightgreen",
+                        sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("1h")
+t3_60HF.UMAP
+```
+
+```{r}
+t4_120HF.cells <-subset(atlas, condition == "t4_120HF")
+t4_120HF.UMAP <- DimPlot(atlas, 
+                         na.value = "grey10",
+                         reduction = "umap",
+                         label=FALSE,
+                         raster=FALSE,
+                         cells.highlight = colnames(t4_120HF.cells),
+                         cols.highlight = "steelblue1",
+                         sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("2h")
+t4_120HF.UMAP
+```
+```{r}
+t5_240HF.cells <-subset(atlas, condition == "t5_240HF")
+t5_240HF.UMAP <- DimPlot(atlas, 
+                         na.value = "grey10",
+                         reduction = "umap", 
+                         label=FALSE,  
+                         raster=FALSE, 
+                         cells.highlight = colnames(t5_240HF.cells), 
+                         cols.highlight = "mediumpurple1", 
+                         sizes.highlight = 0.1) +
+  coord_fixed(1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  ggtitle("2h + 2h")
+t5_240HF.UMAP
+```
+```{r, fig.height=24, fig.width=4}
+combined_plot <- t0_UF.UMAP/t1_15HF.UMAP/t2_30HF.UMAP/t3_60HF.UMAP/t4_120HF.UMAP/t5_240HF.UMAP
+combined_plot
+```
+```{r}
+save_plot("251208_time_highlight_UMAPs_vertical.png", combined_plot, base_height = 24, base_width = 4)
+save_plot("251208_time_highlight_UMAPs_vertical.svg", combined_plot, base_height = 24, base_width = 4)
+```
+
+## Clean up environment
+```{r}
+rm(t0_UF.cells, t1_15HF.cells, t2_30HF.cells, t3_60HF.cells, t4_120HF.cells, t5_240HF.cells)
+```
+
+# ISH gene feature plots
+```{r, fig.width=16, fig.height=4}
+ISH_feature <- FeaturePlot(atlas, c("agxtb", "zgc:92137", "papss2a", "ctsbb"), reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "all", cols = c("light gray", "red")) + plot_layout(guides = "collect")
+ISH_feature
+```
+```{r}
+save_plot("251208_ISH_main_text_feature_plots.png", ISH_feature, base_width = 16, base_height = 4)
+save_plot("251208_ISH_main_text_feature_plots.svg", ISH_feature, base_width = 16, base_height = 4)
+```
+
+# Supplementary Vln plots
+```{r}
+nCount_plot <- VlnPlot(atlas, "nCount_RNA", group.by = "sample_name", ncol = 1, alpha = 0.02, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1")) + 
+  scale_x_discrete(name = "Sample", labels = c("UF 1", "UF 2", "UF 3", "15min 1", "15min 2", "15min 3", "30min 1", "30min 2", "1h 1", "1h 2", "1h 3", "2h 1", "2h 2", "2h+2h 1", "2h+2h 2")) + labs(y = "Reads per Cell") + theme(legend.position = "none", plot.title = element_blank())
+nCount_plot
+```
+```{r}
+nFeature_plot <- VlnPlot(atlas, "nFeature_RNA", group.by = "sample_name", ncol = 1, alpha = 0.02, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1")) +
+  scale_x_discrete(name = "Sample", labels = c("UF 1", "UF 2", "UF 3", "15min 1", "15min 2", "15min 3", "30min 1", "30min 2", "1h 1", "1h 2", "1h 3", "2h 1", "2h 2", "2h+2h 1", "2h+2h 2")) + labs(y = "Distinct Features per Cell") + theme(legend.position = "none", plot.title = element_blank())
+nFeature_plot
+```
+```{r}
+percent_mt_plot <- VlnPlot(atlas, "percent.mt", group.by = "sample_name", ncol = 1, alpha = 0.02, cols = c("hotpink1", "hotpink1", "hotpink1", "orange", "orange","orange", "yellow2", "yellow2", "lightgreen", "lightgreen", "lightgreen", "steelblue1", "steelblue1", "mediumpurple1", "mediumpurple1")) +
+  scale_x_discrete(name = "Sample", labels = c("UF 1", "UF 2", "UF 3", "15min 1", "15min 2", "15min 3", "30min 1", "30min 2", "1h 1", "1h 2", "1h 3", "2h 1", "2h 2", "2h+2h 1", "2h+2h 2")) + labs(y = "Percent Mitochondrial Reads") + theme(legend.position = "none", plot.title = element_blank())
+percent_mt_plot
+```
+```{r, fig.height=12, fig.width=5}
+combo_vlns <- nCount_plot / nFeature_plot / percent_mt_plot + plot_layout(axes = "collect")
+combo_vlns
+```
+```{r}
+save_plot("251208_atlas_paper_QC_violins.png", combo_vlns, base_height = 12, base_width = 5)
+save_plot("251208_atlas_paper_QC_violins.svg", combo_vlns, base_height = 12, base_width = 5)
+```
+
+# Cell cycle plots
+## UMAP by cycle cluster
+```{r}
+cycle_UMAP <- DimPlot(atlas, reduction = "Cell_cycle", group.by = "seurat_clusters", label = TRUE, cols = "Dark2") + theme(legend.position = "none") + coord_fixed() + ggtitle("Cycling Clusters")
+cycle_UMAP
+```
+```{r}
+save_plot("251208_cell_cycle_UMAP.png", cycle_UMAP)
+save_plot("251208_cell_cycle_UMAP.svg", cycle_UMAP)
+```
+
+```{r}
+cell_cycle_data_phase_cluster <- atlas@meta.data %>% group_by(seurat_clusters, Phase) %>% 
+  summarise(Count = n())
+```
+```{r}
+cell_cycle_by_cluster <- ggplot(cell_cycle_data_phase_cluster, aes(x = seurat_clusters, y = Count, fill = Phase)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Cycle Cluster", y = "Proportion of Cells" , fill = "Seurat\nAssigned\nPhase") +
+  theme_minimal() + scale_fill_brewer(palette = "Set1")
+cell_cycle_by_cluster
+```
+```{r}
+save_plot("251208_cell_cycle_seurat_phases_by_cycling_cluster.png", cell_cycle_by_cluster)
+save_plot("251208_cell_cycle_seurat_phases_by_cycling_cluster.svg", cell_cycle_by_cluster)
+```
+
+```{r}
+cycling_by_cell_type <- atlas@meta.data %>% group_by(tree_clusters, cycling_state) %>% 
+  summarise(Count = n())
+```
+```{r, fig.width=8, fig.height=30}
+cycling_by_cell_type_plot <- ggplot(cycling_by_cell_type, aes(x = tree_clusters, y = Count, fill = cycling_state)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(x = "Hierarchical Cluster", y = "Proportion of Cells", fill = "Cycling Status") +
+  theme_minimal() + coord_flip()
+cycling_by_cell_type_plot
+```
+```{r}
+save_plot("251208_WT_proportion_cycling_by_cluster.png", cycling_by_cell_type_plot, base_height = 30, base_width = 8)
+save_plot("251208_WT_proportion_cycling_by_cluster.svg", cycling_by_cell_type_plot, base_height = 30, base_width = 8)
+```
+
+```{r, fig.width=8, fig.height=30}
+cycling_by_cell_type_plot_b <- ggplot(cycling_by_cell_type, aes(x = tree_clusters, y = Count, fill = cycling_state)) + 
+  geom_bar(position = "stack", stat = "identity") + 
+  labs(x = "Hierarchical Cluster", y = "Count of Cells", fill = "Cycling Status") +
+  theme_minimal() + coord_flip()
+cycling_by_cell_type_plot_b
+```
+```{r}
+save_plot("251208_WT_count_cycling_by_cluster.png", cycling_by_cell_type_plot_b, base_height = 30, base_width = 8)
+save_plot("251208_WT_count_cycling_by_cluster.svg", cycling_by_cell_type_plot_b, base_height = 30, base_width = 8)
+```
+
+```{r}
+cell_cycle_by_sample <- atlas@meta.data %>% group_by(sample_name, cycling_state) %>% 
+  summarise(Count = n())
+```
+```{r}
+cell_cycle_by_sample_plot <- ggplot(cell_cycle_by_sample, aes(x = sample_name, y = Count, fill = cycling_state)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(y = "Proportion of Cells", fill = "Cycling Status") +
+  theme_minimal() +
+  scale_x_discrete(name = "Sample", labels = c("UF 1", "UF 2", "UF 3", "15min 1", "15min 2", "15min 3", "30min 1", "30min 2", "1h 1", "1h 2", "1h 3", "2h 1", "2h 2", "2h+2h 1", "2h+2h 2")) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+cell_cycle_by_sample_plot
+```
+```{r}
+save_plot("251208_cycling_by_sample.png", cell_cycle_by_sample_plot)
+save_plot("251208_cycling_by_sample.svg", cell_cycle_by_sample_plot)
+```
+
+```{r}
+cell_cycle_cluster_by_sample <- atlas@meta.data %>% group_by(sample_name, seurat_clusters) %>% 
+  summarise(Count = n())
+```
+```{r}
+cell_cycle_cluster_by_sample_plot <- ggplot(cell_cycle_cluster_by_sample, aes(x = sample_name, y = Count, fill = seurat_clusters)) + 
+  geom_bar(position = "fill", stat = "identity") + 
+  labs(y = "Proportion of Cells", fill = "Cycle Cluster") +
+  theme_minimal() +
+  scale_x_discrete(name = "Sample", labels = c("UF 1", "UF 2", "UF 3", "15min 1", "15min 2", "15min 3", "30min 1", "30min 2", "1h 1", "1h 2", "1h 3", "2h 1", "2h 2", "2h+2h 1", "2h+2h 2")) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_fill_brewer(palette = "Dark2")
+cell_cycle_cluster_by_sample_plot
+```
+```{r}
+save_plot("251208_cycle_cluster_by_sample.png", cell_cycle_cluster_by_sample_plot)
+save_plot("251208_cycle_cluster_by_sample.svg", cell_cycle_cluster_by_sample_plot)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

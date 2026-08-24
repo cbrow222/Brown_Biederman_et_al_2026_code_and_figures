@@ -1,0 +1,91 @@
+---
+title: "Zeituni Comparison DEG overlap with atlas"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+``` 
+
+# Load relevant atlas section
+```{r}
+Zeituni_atlas_subset <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Files for sharing with collaborators/atlas_paper_Zeituni_comparison/260402_Zeituni_comparison_seurat_file.rds")
+```
+
+# Load sig pairwise DEGs for this region
+```{r}
+Atlas_DEGs <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Files for sharing with collaborators/atlas_paper_Zeituni_comparison/260402_significant_pairwise_to_unfed_DEGs_for_clusters_in_Zeituni.csv")
+```
+
+# Load the Zeituni gene sets
+```{r}
+shared_down <- read.csv("C:/Users/cat14/OneDrive/Documents/Farber_lab_local_code/ZeitUni_DEG_Downn1EY_1EW.csv")
+EY_up <- read.csv("C:/Users/cat14/OneDrive/Documents/Farber_lab_local_code/ZeitUni_DEG_EYUPCluster.csv")
+shared_up <- read.csv("C:/Users/cat14/OneDrive/Documents/Farber_lab_local_code/ZeitUni_DEG_UPin1EY+1EW.csv")
+```
+
+# Get just list of genes
+```{r}
+shared_down_genes <- shared_down$si.ch73.1m18.2 %>% unique()
+EY_up_genes <- EY_up$gene %>% unique()
+shared_up_genes <- shared_up$gene %>% unique()
+```
+
+# Get lists of genes for atlas DEGs
+```{r}
+atlas_up <- Atlas_DEGs %>% filter(log2FoldChange > 0) %>% select(gene) %>% unique() %>% unlist()
+atlas_down <- Atlas_DEGs %>% filter(log2FoldChange < 0) %>% select(gene) %>% unique() %>% unlist()
+```
+
+# Compare atlas up with EY and shared up
+```{r}
+ggVennDiagram(list("Atlas" = atlas_up, "EY" = EY_up_genes, "shared" = shared_up_genes))
+```
+# Egg yolk overlap
+```{r}
+intersect(atlas_up, EY_up_genes)
+```
+# Shared overlap
+```{r}
+intersect(atlas_up, shared_up_genes)
+```
+
+# Shared down overlap
+```{r}
+intersect(atlas_down, shared_down_genes)
+```
+
+# Get just the aEC up and down genes
+```{r}
+aEC_up <- Atlas_DEGs %>% filter(log2FoldChange > 0) %>% 
+  filter(short_cell_type == "EnteroAnte") %>% select(gene) %>% unique() %>% unlist()
+aEC_down <- Atlas_DEGs %>% filter(log2FoldChange < 0) %>% 
+  filter(short_cell_type == "EnteroAnte") %>% select(gene) %>% unique() %>% unlist()
+```
+
+# Compare atlas up with EY and shared up
+```{r}
+ggVennDiagram(list("aEC" = aEC_up, "EY" = EY_up_genes, "shared" = shared_up_genes))
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

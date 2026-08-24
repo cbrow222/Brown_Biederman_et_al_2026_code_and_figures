@@ -1,0 +1,106 @@
+---
+title: "DE across all timepoints"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+For some reason this document closed itself without saving when I ran it. The code was recovered from the console in the morning as the RStudio session was still the same.
+# Load libraries
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(DESeq2)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# Load atlas
+```{r}
+atlas <- readRDS("/mnt/sequence/home/cbrown/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Aggregate expression
+```{r}
+pseudo_ct <- AggregateExpression(atlas, assays = "RNA", return.seurat = T, group.by = c("cell_type_cluster", "condition", "sample_name"))
+```
+
+# Check naming of cells
+```{r}
+head(Cells(pseudo_ct))
+```
+
+# Reset metadata
+```{r}
+ct=NULL
+conditions=NULL
+ct.condition = NULL
+for (element in Cells(pseudo_ct)){
+   split_element <- strsplit(element, "_")
+   ct=c(ct, split_element[[1]][1])
+   conditions=c(conditions, split_element[[1]][2])
+   ct.condition =c(ct.condition, paste(split_element[[1]][1], split_element[[1]][2], sep = "."))
+}
+pseudo_ct$ct <- ct
+pseudo_ct$condition <- conditions
+pseudo_ct$ct.condition <-ct.condition
+Idents(pseudo_ct) <- "ct.condition"
+```
+
+# Get list of cell types
+```{r}
+unique_ct <- unique(ct)
+```
+
+# Run DE
+```{r}
+ct_DE =NULL
+filtered_ct_DE = NULL
+ct_no_sig_DE = NULL
+ct_sig_DE = NULL
+bad_ct_time_combos = NULL
+for (celltype in unique_ct){
+   tryCatch({
+     sample = subset(pseudo_ct, (ct == celltype))
+     dds <- DESeqDataSetFromMatrix(countData = sample@assays$RNA$counts, 
+                                 colData = sample@meta.data,
+                                 design = ~condition)
+     dds$condition <- relevel(dds$condition, ref = "t0-UF")
+     dds <- DESeq(dds, test = "LRT", useT = TRUE, minmu = 1e-6, minReplicatesForReplace = Inf, reduced = ~1)
+     res <- results(dds, alpha = 0.05)
+     res <- rownames_to_column(data.frame(res), "gene")
+     res$celltype <- celltype
+     },
+   error = function(err){
+     bad_ct_time_combos <- c(bad_ct_time_combos, celltype)
+     }
+     )
+   filtered_celltype_DE <- filter(res, padj <= 0.05)
+   ct_DE <- rbind(ct_DE, res)
+   if (dim(filtered_celltype_DE)[1] == 0){
+     ct_no_sig_DE <- c(ct_no_sig_DE, celltype)
+   }
+   else {
+     ct_sig_DE <- c(ct_sig_DE, celltype)
+     filtered_ct_DE <- rbind(filtered_ct_DE, filtered_celltype_DE)
+   }
+}
+```
+# Save results
+```{r}
+write_csv(ct_DE, "/mnt/sequence/home/cbrown/atlas_paper/251211_DESeq_LRT_all_times_full_DE_results.csv")
+write_csv(filtered_ct_DE, "/mnt/sequence/home/cbrown/atlas_paper/251211_DESeq_LRT_all_times_filtered_DE_results.csv")
+```
+
+# Session Info
+```{r}
+sessionInfo()
+```
+

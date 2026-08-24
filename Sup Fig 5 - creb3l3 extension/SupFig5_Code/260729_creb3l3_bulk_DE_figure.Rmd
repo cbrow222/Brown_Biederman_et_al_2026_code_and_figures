@@ -1,0 +1,504 @@
+---
+title: "Figure components for creb3l3"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(DESeq2)
+library(biomaRt)
+library(RColorBrewer)
+```
+```{r, message = FALSE}
+library(ggtext)
+```
+
+# Read in Creb3l3 larval bulk RNA-seq data
+```{r}
+countData <- read.csv('C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Figure Folders for Server-Lab/Fig 6 - creb3l3/salmon.merged.gene_counts.tsv', 
+                           header = TRUE, 
+                           sep = "\t", 
+                           row.names = "gene_id")
+```
+
+# Set up metadata for count data
+```{r}
+cnames <- colnames(countData)
+Condition <- c("HLM Fed", "HLM Fed", "HLM Fed", "Unfed","Unfed","Unfed", "HLM Fed", "HLM Fed", "HLM Fed", "Unfed","Unfed","Unfed")
+Genotype <- c("creb3l3(-/-)","creb3l3(-/-)","creb3l3(-/-)","creb3l3(-/-)","creb3l3(-/-)","creb3l3(-/-)","creb3l3(+/-)","creb3l3(+/-)","creb3l3(+/-)","creb3l3(+/-)","creb3l3(+/-)","creb3l3(+/-)") 
+columnData <- tibble(cnames, Condition, Genotype) %>%
+  column_to_rownames(var = "cnames")
+```
+
+# Read in genes with significant main effect of genotype
+```{r}
+creb_DE <- read.csv("260723_creb3l3_bulk_DE_genotype_main_effect_sig_hits.csv")
+```
+
+# Get updated gene names for the DEGs
+```{r}
+mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "drerio_gene_ensembl", host ="https://dec2021.archive.ensembl.org")
+gene_info <- getBM(filters = "ensembl_gene_id",
+                   attributes= c("ensembl_gene_id", "external_gene_name"),
+                   values = creb_DE$ensembl_gene_id,
+                   mart = mart)
+```
+
+# Get the one gene that didn't pull correctly
+```{r}
+gene_info[54, "external_gene_name"] <- "si:ch211-216l23.1"
+```
+# Fix apoa4b.2 to match atlas
+```{r}
+gene_info[19, "external_gene_name"] <- "apoa4b.2.1"
+```
+
+
+# Heatmap of count Data for these genes
+## Make matrix of counts of relvant genes
+```{r}
+count_matrix <- countData %>% rownames_to_column(var = "ensembl_gene_id") %>% 
+  filter(ensembl_gene_id %in% creb_DE$ensembl_gene_id) %>% left_join(gene_info) %>%
+  dplyr::select(!ensembl_gene_id) %>% column_to_rownames(var = "external_gene_name") %>%
+  as.matrix()
+```
+
+# Use a max divided normalization instead of the z-score
+```{r}
+max_exp_df<- as.data.frame(count_matrix) %>% 
+  rowwise() %>% summarize(Maximum = max(c_across(1:12)))
+creb_matrix_max_divided <- as.data.frame(count_matrix) / unlist(max_exp_df)
+creb_matrix_max_divided <- as.matrix(creb_matrix_max_divided)
+```
+
+# Reorder matrix columns to the order desired for plotting
+```{r}
+column_order <- c("wt_nf_R1", "wt_nf_R2", "wt_nf_R3", "wt_hf_R1", "wt_hf_R2", "wt_hf_R3", "mut_nf_R1", "mut_nf_R2", "mut_nf_R3", "mut_hf_R1", "mut_hf_R2", "mut_hf_R3")
+creb_matrix_max_divided <- creb_matrix_max_divided[,column_order]
+```
+
+# Plot it
+```{r, fig.height=8, fig.width=3.5}
+h1 <- pheatmap(creb_matrix_max_divided, cluster_cols = FALSE, annotation_col = columnData, scale = "none", cutree_rows = 8, fontsize = 6, treeheight_row = 4, show_colnames = FALSE)
+```
+# Get the groupings
+```{r}
+creb_groups = cutree(h1$tree_row,8)
+creb_groups = data.frame(creb_groups)
+rownames(creb_groups) = rownames(creb_matrix_max_divided)
+```
+
+# Name the groupings
+```{r}
+creb_groups <- creb_groups %>% mutate(Creb3l3_deletion_response  = case_when(
+  creb_groups == 1 ~ "Upregulated HLM Downregulated",
+  creb_groups == 2 ~ "Upregulated not HLM Responsive",
+  creb_groups == 3 ~ "Downregulated Uniformly",
+  creb_groups == 4 ~ "Blunted HLM Induction",
+  creb_groups == 5 ~ "Eliminated HLM Induction",
+  creb_groups == 6 ~ "Upregulated not HLM Responsive",
+  creb_groups == 7 ~ "Upregulated HLM Induced",
+  creb_groups == 8 ~ "Eliminated HLM Induction"
+)) %>% dplyr::select(!creb_groups)
+```
+
+# Set up colors
+```{r}
+genotype_colors <- c("creb3l3(-/-)" = "#1b9e77", "creb3l3(+/-)" = "#d95f02")
+creb_response_colors <- c("Upregulated HLM Downregulated" = "#7570b3", "Upregulated not HLM Responsive" = "#e7298a", "Downregulated Uniformly" = "#66a61e", "Blunted HLM Induction" = "#E6ab02", "Eliminated HLM Induction" = "#a6761d", "Upregulated HLM Induced" = "#666666", "creb3l3 paralog" = "lightgrey")
+DEG_status_colors <- c("Not LRT DEG" = "#984ea3", "Both paralog expression LRT DEG" = "#377eb8", "creb3l3b expression cluster LRT DEG" = "#4daf4a", "No creb3l3 expression cluster LRT DEG" = "#e41a1c")
+Expression_location_colors <- c("Both paralog expression region" = "#a6cee3", "creb3l3b expression region" = "#b2df8a", "No creb3l3 expression region" = "#fb9a99", "creb3l3 paralog" = "lightgrey")
+```
+
+# Determine LRT DEG status
+## Read in LRT DE
+```{r}
+LRT <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Figure Folders for Server-Lab/Sup Data - DEGs LRT and pairwise/251211_DESeq_LRT_all_times_filtered_DE_results.csv")
+```
+
+## Get aEC DEGs
+```{r}
+aEC_genes <- LRT %>% filter(celltype %in% c("EnteroAnte-1", "EnteroAnte-2", "EnteroAnte-3")) %>% dplyr::select("gene") %>% unique() %>% unlist()
+```
+
+## Get other creb3l3b DEGs
+```{r}
+creb3l3b_DEGs <- LRT %>% filter(celltype %in% c("Hepatocyte-4", "CardiacMus-185", "Colangio-52", "EnBestOtop-17", "Ileocyte-15")) %>% dplyr::select("gene") %>% unique() %>% unlist() %>% setdiff(aEC_genes)
+```
+
+## Get unique LRT genes that aren't in those clusters
+```{r}
+genes <- LRT %>% dplyr::select("gene") %>% unique() %>% unlist() %>% setdiff(aEC_genes) %>% setdiff(creb3l3b_DEGs)
+```
+
+## Make data frame that tags each creb gene with it's group and if it is LRT
+```{r}
+creb_groups <- creb_groups %>% rownames_to_column(var = "gene") %>% mutate(LRT_status = case_when(
+  gene %in% genes ~ "No creb3l3 expression cluster LRT DEG",
+  gene %in% aEC_genes ~ "Both paralog expression LRT DEG",
+  gene %in% creb3l3b_DEGs ~ "creb3l3b expression cluster LRT DEG",
+  .default = "Not LRT DEG"
+))
+```
+```{r}
+creb_groups <- column_to_rownames(creb_groups, var = "gene")
+```
+
+
+# Plot it
+```{r, fig.height=9, fig.width=6}
+h2 <- pheatmap(creb_matrix_max_divided, cluster_cols = FALSE, annotation_col = columnData, annotation_row = creb_groups, scale = "none", cutree_rows = 8, fontsize = 7, treeheight_row = 4, show_colnames = FALSE, annotation_colors = list(Genotype = genotype_colors, Condition = c("HLM Fed" = "steelblue1", "Unfed" = "hotpink1"), Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors))
+```
+
+
+# Read in the atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Make scatter plot of creb3l3 expression by cluster
+```{r}
+avg_exp <- AverageExpression(atlas, group.by = c("short_cell_type_cluster"), assay = "RNA", layer = "counts")
+```
+# Make it a dataframe and get just the crebs
+```{r}
+creb_avg_exp_df <- avg_exp[["RNA"]] %>% t() %>% as.data.frame() %>% rownames_to_column(var = "Cluster") %>% dplyr::select(Cluster, creb3l3a, creb3l3b) %>%
+  arrange(desc(creb3l3b))
+```
+# Make column for cluster labels
+```{r}
+creb_avg_exp_df <- mutate(creb_avg_exp_df, Cluster_labs = case_when(
+  creb3l3b > 0.2 ~ Cluster,
+  .default = NULL
+))
+```
+
+# Plot it
+```{r, fig.height=3, fig.width=3.5}
+creb_scatter <- ggplot(creb_avg_exp_df, aes(x = creb3l3a, y = creb3l3b, label = Cluster_labs)) + geom_point() + theme_minimal() + 
+  labs(x = "Average *creb3l3a* Expression (TP10K)", y = "Average *creb3l3b* Expression (TP10K)") + 
+  geom_text(vjust = "middle", hjust = "inward", nudge_x = 0.02, size = 7, size.unit = "pt") + scale_x_sqrt() + scale_y_sqrt() + 
+  geom_hline(yintercept = 0.2, color = "red", linetype = "dashed") + 
+  geom_vline(xintercept = 0.2, color = "red", linetype = "dashed") + 
+  theme(axis.title.x = ggtext::element_markdown(),axis.title.y = ggtext::element_markdown(), text = element_text(size = 8))
+creb_scatter
+```
+```{r}
+save_plot("260724_creb3l3_atlas_cluster_expression_scatter.svg",creb_scatter, base_height = 3, base_width = 3.5)
+```
+
+# Is there effect of creb response type on lrt status
+## Make it a table
+```{r}
+creb_groups_LRT_table <- creb_groups %>% group_by(Creb3l3_deletion_response, LRT_status) %>%
+  summarise(Count = n())
+```
+# Plot it
+```{r, fig.height=3, fig.width=3.5}
+creb_LRT_group_plot <- ggplot(creb_groups_LRT_table, aes(y=Count, x = Creb3l3_deletion_response, fill = LRT_status)) + geom_bar(position = "fill", stat = "identity", color = "black") +
+  labs(x = "Creb3l3 Deletion Response", y = "Proportion of Genes", fill = "LRT Status") + theme_minimal() + theme(text = element_text(size = 7, family = "sans"), axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + scale_fill_manual(values = DEG_status_colors)
+creb_LRT_group_plot
+```
+```{r}
+save_plot("260729_LRT_DE_status_by_creb3l3_response_type.svg", creb_LRT_group_plot, base_height = 3, base_width = 3.5)
+```
+# Run stats to see if that difference in proportion is significant
+## Make the contingency table
+```{r}
+groups_LRT_cont_table <- creb_groups_LRT_table %>% pivot_wider(names_from = LRT_status, values_from = Count) %>% column_to_rownames("Creb3l3_deletion_response")
+```
+# Replace NA with 0
+```{r}
+groups_LRT_cont_table[is.na(groups_LRT_cont_table)] <- 0
+```
+
+```{r}
+fisher.test(groups_LRT_cont_table, simulate.p.value = TRUE)
+```
+I would have expected significance but I would guess we just have too small a sample size to have enough power
+```{r}
+chisq.test(groups_LRT_cont_table)
+```
+
+# Is the overlap between creb3l3 regulated genes and EY specific genes more than expected by random chance
+```{r}
+feed_overlap_contingency <- data.frame("Creb3l3" = c(5, 83), "No" = c(9, 32115), row.names = c("EY specific", "No"))
+fisher.test(feed_overlap_contingency)
+```
+# Get system information for clusters
+```{r}
+annotation_data <- atlas@meta.data %>% group_by(short_cell_type_cluster) %>% 
+  dplyr::select(c(short_cell_type_cluster, system)) %>% unique()
+annotation_data$short_cell_type_cluster <- str_replace_all(annotation_data$short_cell_type_cluster, "_", "-")
+annotation_frame <- column_to_rownames(annotation_data, "short_cell_type_cluster")
+```
+
+# Determine expression domains for each of the creb3l3 responsive genes
+# Make a matrix of just the creb targets TP10K
+```{r}
+creb_targets <- rownames(creb_groups) %>% unlist()
+creb_targets <- c(creb_targets, "creb3l3a", "creb3l3b")
+creb_target_matrix_full <- avg_exp[["RNA"]] %>% as.data.frame()
+creb_target_matrix_full <- creb_target_matrix_full[creb_targets,]
+creb_target_matrix_full[is.na(creb_target_matrix_full)] <- 0
+creb_target_matrix_full <- as.matrix(creb_target_matrix_full)
+```
+
+# Remove rows that have only zeros
+```{r}
+creb_target_matrix_no_all_zero = creb_target_matrix_full[rowSums(creb_target_matrix_full[])>0,]
+```
+
+# What genes am I missing
+```{r}
+rownames(creb_target_matrix_no_all_zero)
+creb_targets
+```
+
+# Get clusters with creb3l3 expression
+```{r}
+creb_target_df_creb_clusters <- as.data.frame(t(creb_target_matrix_full)) %>% 
+  filter(creb3l3b >= 0.2) %>% as.matrix()
+```
+
+
+# What if I calculate a score that takes into account the usual location and the average expression.
+## Use average expression over maximum average expression
+```{r}
+max_exp_df<- as.data.frame(creb_target_matrix_no_all_zero) %>% 
+  rowwise() %>% summarize(Maximum = max(c_across(1:271)))
+creb_matrix_max_divided_r <- as.data.frame(creb_target_matrix_no_all_zero) / unlist(max_exp_df)
+creb_matrix_max_divided_creb_clusters <- creb_matrix_max_divided_r[,rownames(creb_target_df_creb_clusters)]
+creb_matrix_max_divided_r <- as.matrix(creb_matrix_max_divided_r) %>% t()
+creb_matrix_max_divided_creb_clusters <- as.matrix(creb_matrix_max_divided_creb_clusters) %>% t()
+```
+
+# Identify primary vs. secondary responders
+```{r}
+all_targets <- t(creb_matrix_max_divided_creb_clusters) %>% 
+  as.data.frame() %>% 
+  rowwise() %>% summarize(Maximum = max(c_across(1:8)))
+rownames(all_targets) <- rownames(creb_target_matrix_no_all_zero)
+all_targets <- all_targets %>% filter(Maximum >= 0.5) %>% rownames()
+aEC_targets <- t(creb_matrix_max_divided_creb_clusters) %>% 
+  as.data.frame() %>% dplyr::select("EnteroAnte-1", "EnteroAnte-2", "EnteroAnte-3") %>%
+  rowwise() %>% summarize(Maximum = max(c_across(1:3)))
+rownames(aEC_targets) <- rownames(creb_target_matrix_no_all_zero)
+aEC_targets <- aEC_targets %>% filter(Maximum >= 0.5) %>% rownames()
+creb3l3b_targets <- setdiff(all_targets, aEC_targets)
+secondary <- setdiff(creb_targets, all_targets)
+```
+```{r}
+aEC_targets
+creb3l3b_targets
+secondary
+```
+```{r}
+aEC_targets <- aEC_targets[! aEC_targets %in% c("creb3l3a", "creb3l3b")]
+```
+```{r}
+aEC_targets
+```
+
+# Add primary target-ness to the gene annotations
+```{r}
+creb_groups <- rownames_to_column(creb_groups, var = "gene") %>%
+  mutate(Expression_location = case_when(
+    gene %in% aEC_targets ~ "Both paralog expression region",
+    gene %in% creb3l3b_targets ~ "creb3l3b expression region",
+    gene %in% secondary ~ "No creb3l3 expression region",
+    gene %in% c("creb3l3a", "creb3l3b") ~ "creb3l3 paralog",
+    .default = "Not found in snRNA-seq"
+  )) %>%
+  column_to_rownames(var = "gene")
+```
+
+# Plot it
+```{r, fig.height=9, fig.width=6}
+h3 <- pheatmap(creb_matrix_max_divided, cluster_cols = FALSE, annotation_col = columnData, annotation_row = creb_groups, scale = "none", cutree_rows = 8, fontsize = 7, treeheight_row = 4, show_colnames = FALSE, annotation_colors = list(Genotype = genotype_colors, Condition = c("HLM Fed" = "steelblue1", "Unfed" = "hotpink1"), Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors, Expression_location = Expression_location_colors))
+```
+# What if I call expression region based on TP10K (this is probably better)
+```{r}
+all_targets_2 <- t(creb_target_df_creb_clusters) %>% 
+  as.data.frame() %>% 
+  rowwise() %>% summarize(Maximum = max(c_across(1:8)))
+rownames(all_targets_2) <- rownames(creb_target_matrix_full)
+all_targets_2 <- all_targets_2 %>% filter(Maximum >= 0.2) %>% rownames()
+aEC_targets_2 <- t(creb_target_df_creb_clusters) %>% 
+  as.data.frame() %>% dplyr::select("EnteroAnte-1", "EnteroAnte-2", "EnteroAnte-3") %>%
+  rowwise() %>% summarize(Maximum = max(c_across(1:3)))
+rownames(aEC_targets_2) <- rownames(creb_target_matrix_full)
+aEC_targets_2 <- aEC_targets_2 %>% filter(Maximum >= 0.2) %>% rownames()
+creb3l3b_targets_2 <- setdiff(all_targets_2, aEC_targets_2)
+secondary_2 <- setdiff(creb_targets, all_targets_2)
+```
+```{r}
+aEC_targets_2
+aEC_targets
+creb3l3b_targets_2
+creb3l3b_targets
+secondary_2
+secondary
+```
+```{r}
+aEC_targets_2 <- aEC_targets_2[! aEC_targets %in% c("creb3l3a", "creb3l3b")]
+```
+# Add primary target-ness to the gene annotations
+```{r}
+creb_groups <- rownames_to_column(creb_groups, var = "gene") %>%
+  mutate(Expression_location = case_when(
+    gene %in% aEC_targets_2 ~ "Both paralog expression region",
+    gene %in% creb3l3b_targets_2 ~ "creb3l3b expression region",
+    gene %in% secondary_2 ~ "No creb3l3 expression region",
+    gene %in% c("creb3l3a", "creb3l3b") ~ "creb3l3 paralog",
+  )) %>%
+  column_to_rownames(var = "gene")
+```
+# Plot it
+```{r, fig.height=9, fig.width=5}
+h4 <- pheatmap(creb_matrix_max_divided, cluster_cols = FALSE, annotation_col = columnData, annotation_row = creb_groups, scale = "none", cutree_rows = 8, fontsize = 7, treeheight_row = 4, show_colnames = FALSE, annotation_colors = list(Genotype = genotype_colors, Condition = c("HLM Fed" = "steelblue1", "Unfed" = "hotpink1"), Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors, Expression_location = Expression_location_colors))
+```
+```{r}
+save_plot("260729_creb3l3_bulk_expression_heatmap.svg", h4, base_height = 9, base_width = 5)
+```
+
+# Make an annotation data frame that includes the creb3l3 genes
+```{r}
+creb_ann <- data.frame("Creb3l3_deletion_response" = c("creb3l3 paralog", "creb3l3 paralog"), LRT_status = c("Both paralog expression LRT DEG", "Not LRT DEG"), Expression_location = c("creb3l3 paralog", "creb3l3 paralog"), row.names = c("creb3l3a", "creb3l3b"))
+creb_annotations <- rbind(creb_groups, creb_ann)
+creb_annotations <- creb_annotations[rownames(creb_target_matrix_no_all_zero),]
+```
+
+# Heatmap of snRNA-seq expression for these genes
+```{r,fig.width=7, fig.height=10}
+pheatmap(creb_matrix_max_divided_r, annotation_col = creb_annotations, annotation_colors = list(Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors, Expression_location = Expression_location_colors), show_rownames = FALSE, fontsize = 6, treeheight_row = 4, treeheight_col = 4)
+```
+# What if I plot the straight TP10K values on a square root color scale (accomplished by making a square rooted matrix and the relabeling the color scale)
+## Make square root matrix
+```{r}
+creb_matrix_sqrt <- sqrt(creb_target_matrix_no_all_zero)
+```
+
+## Plot it
+```{r,fig.width=7, fig.height=10}
+pheatmap(t(creb_matrix_sqrt), annotation_col = creb_annotations, annotation_colors = list(Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors, Expression_location = Expression_location_colors), show_rownames = FALSE, fontsize = 6, treeheight_row = 4, treeheight_col = 4)
+```
+# What about log10 scale
+## Make log10 matrix
+```{r}
+creb_matrix_log10 <- log10(creb_target_matrix_no_all_zero)
+creb_matrix_log10[creb_matrix_log10 == -Inf] <- -4
+```
+## Reorder matrix in creb3l3b expression order
+```{r}
+creb_matrix_log10 <- t(creb_matrix_log10) %>% as.data.frame() %>% arrange(desc(creb3l3b)) %>% as.matrix()
+```
+# Reorder matrix columns based on creb response patterns
+```{r}
+col_order <- h4$tree_row$labels[h4$tree_row$order]
+col_order <- c(col_order, "creb3l3a", "creb3l3b")
+col_order <- col_order[col_order != "si:ch211-216l23.1"]
+creb_matrix_log10 <- creb_matrix_log10[,col_order]
+```
+
+# Get system colors and annotaions
+```{r}
+annotation_data <- column_to_rownames(annotation_data, var = "short_cell_type_cluster")
+system_colors <- c("connective tissue" = "#22FAFC", "sensory" = "#FB00FB", "musculoskeletal" = "#E6E90D", "digestive" = "#4B4D53", "transporter" = "#EE2200", "nervous" = "#267CFE", "integumentary" = "#FF7EAD", "cardiovascular" = "#00FB7E", "respiratory" = "#F5960D", "neural crest" = "#DCA3FB", "unknown" = "#FFDCBB", "endocrine" = "#407C0D", "immune" = "#0D85BA", "pronephric" = "#7C420D")
+```
+
+## Plot it
+```{r,fig.width=7, fig.height=10}
+h5 <- pheatmap(creb_matrix_log10, annotation_col = creb_annotations, annotation_colors = list(Creb3l3_deletion_response = creb_response_colors, LRT_status = DEG_status_colors, Expression_location = Expression_location_colors, system = system_colors), show_rownames = FALSE, fontsize = 6, treeheight_row = 4, treeheight_col = 4, color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdBu")), bias = 0.75)(50), cluster_rows = FALSE, legend_breaks = c(-4, -3, -2, -1, -0.7, 0, 1, 1.5), legend_labels = c(0, 0.001, 0.01, 0.1, 0.2, 1, 10, 31.6), gaps_row = c(3, 8), cluster_cols = FALSE, annotation_row = annotation_data)
+```
+```{r}
+save_plot("260729_creb3l3_responsive_gene_expression_snRNA_TP10K.svg", h5, base_width = 7, base_height = 10)
+```
+
+# Are genes from a certain pattern of creb3l3 response more likely to be expressed with the creb3l3 paralogs
+# Is there effect of creb response type on lrt status
+## Make it a table
+```{r}
+creb_groups_expression_table <- creb_groups %>% group_by(Creb3l3_deletion_response, Expression_location) %>%
+  summarise(Count = n())
+```
+# Plot it
+```{r, fig.height=3, fig.width=3.5}
+creb_expression_group_plot <- ggplot(creb_groups_expression_table, aes(y=Count, x = Creb3l3_deletion_response, fill = Expression_location)) + geom_bar(position = "fill", stat = "identity", color = "black") +
+  labs(x = "Creb3l3 Deletion Response", y = "Proportion of Genes", fill = "Expression location") + theme_minimal() + theme(text = element_text(size = 7, family = "sans"), axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + scale_fill_manual(values = Expression_location_colors)
+creb_expression_group_plot
+```
+
+# Run stats to see if that difference in proportion is significant
+## Make the contingency table
+```{r}
+groups_expression_cont_table <- creb_groups_expression_table %>% pivot_wider(names_from = Expression_location, values_from = Count) %>% column_to_rownames("Creb3l3_deletion_response")
+```
+# Replace NA with 0
+```{r}
+groups_expression_cont_table[is.na(groups_expression_cont_table)] <- 0
+```
+
+```{r}
+fisher.test(groups_expression_cont_table, simulate.p.value = TRUE)
+```
+```{r}
+chisq.test(groups_expression_cont_table)
+```
+
+# Does expression location impact DE state
+```{r}
+expression_LRT_table <- creb_groups %>% group_by(LRT_status, Expression_location) %>%
+  summarise(Count = n())
+```
+# Plot it
+```{r, fig.height=2, fig.width=3}
+expression_LRT_group_plot <- ggplot(expression_LRT_table, aes(y=Count, x = Expression_location, fill = LRT_status)) + geom_bar(position = "fill", stat = "identity", color = "black") +
+  labs(x = "Expression Location", y = "Proportion of Genes", fill = "LRT status") + theme_minimal() + theme(text = element_text(size = 7, family = "sans"), axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.key.size = unit(0.125, "in")) + scale_fill_manual(values = DEG_status_colors)
+expression_LRT_group_plot
+```
+```{r}
+save_plot("260729_LRT_status_by_expresion_location_creb3l3_targets.svg", expression_LRT_group_plot, base_height = 2, base_width = 3)
+```
+
+## Make the contingency table
+```{r}
+expression_LRT_cont_table <- expression_LRT_table %>% pivot_wider(names_from = Expression_location, values_from = Count) %>% column_to_rownames("LRT_status")
+```
+# Replace NA with 0
+```{r}
+expression_LRT_cont_table[is.na(expression_LRT_cont_table)] <- 0
+```
+
+```{r}
+fisher.test(expression_LRT_cont_table, simulate.p.value = TRUE)
+```
+```{r}
+chisq.test(expression_LRT_cont_table)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+
+
+
+
+
+

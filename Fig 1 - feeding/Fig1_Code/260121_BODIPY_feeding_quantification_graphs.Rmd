@@ -1,0 +1,327 @@
+---
+title: "BODIPY fluorescence from feeding"
+author: "Cat Brown and Michelle Biederman"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Purpose
+
+Analysis of Ingestion of BODIPY-C16 5% Egg Yolk vs. Unfed and 3mM Mesab + Egg Yolk Controls
+
+Data:
+10-25-20
+11-5-20
+
+5 ms exposure
+
+Unfed
+15 min EY mesab
+15 min EY
+30 min EY mesab
+30 min EY
+1 Hr EY mesab
+1 Hr EY
+2 Hr EY mesab
+2 Hr EY
+
+Outliers not removed for calculations
+
+Code mostly from Michelle's 250725_fig2.2_plots_and_stats.rmd file. Some plot aesthetics were changed.
+
+# Load libpaths
+
+```{r}
+.libPaths("/apps/R/4.3.2/seurat/5.1.0")
+```
+
+# load libraries
+
+```{r, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+library(RColorBrewer)
+library(cowplot)
+library(tidyverse)
+library(readxl)
+library(writexl)
+library(svglite, lib="/home/biederman/R/x86_64-pc-linux-gnu-library/4.3/")
+```
+
+# load raw data with mesab
+
+```{r}
+fig1 <- read_xlsx("/mnt/sequence/home/biederman/250505_BODIPY_feeding_201025_and_201105_with_day_and_mesab.xlsx")
+```
+
+## check data
+
+```{r}
+fig1
+```
+
+## as factor
+
+```{r}
+fig1$Day <- as.factor(fig1$Day)
+fig1$Feeding <- as.factor(fig1$Feeding)
+```
+
+## check levels
+
+```{r}
+levels(fig1$Feeding)
+```
+
+## check boxplot
+
+```{r}
+boxplot(Intensity ~ Feeding, data = fig1)
+```
+
+## boxplot with title and outliers
+
+```{r, fig.height=12, fig.width=12}
+ggplot(fig1, aes(x=Feeding, y=Intensity, color=Day)) + 
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2)) + 
+  scale_x_discrete(limits=c("15 min UF", "15 min EY mesab 3 mM", "15 min EY", "30 min EY mesab 3 mM", "30 min EY", "1 Hr EY mesab 3 mM","1 Hr EY", "2 Hr EY mesab 3 mM", "2 Hr EY")) + 
+  labs(title="BODIPY-C16 Egg Yolk Ingestion",x="Feeding Time", y = "BODIPY-C16 Fluorescence Intensity")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## no outlier, no title
+
+```{r, fig.width=6, fig.height=6}
+plot <- fig1 %>%
+  filter(Intensity < 500000000) %>%
+  ggplot(aes(x=Feeding, y=Intensity)) +
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2), size = 0.8) + 
+  scale_x_discrete(limits=c("15 min UF", "15 min EY mesab 3 mM", "15 min EY", "30 min EY mesab 3 mM", "30 min EY", "1 Hr EY mesab 3 mM","1 Hr EY", "2 Hr EY mesab 3 mM", "2 Hr EY"), labels = c("Unfed", "15 min EY + MESAB", "15 min EY", "30 min EY + MESAB", "30 min EY", "1 h EY + MESAB","1 h EY", "2 h EY + MESAB", "2 h EY")) + 
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plot
+```
+
+## Save plot
+
+```{r}
+save_plot("260121_BODIBPY_feeding_boxplot_with_MESAB_6x6in_300dpi.svg", plot, base_width = 6, base_height = 6, units = "in", dpi=300)
+save_plot("260121_BODIBPY_feeding_boxplot_with_MESAB_6x6in_300dpi.png", plot, base_width = 6, base_height = 6, units = "in", dpi=300)
+```
+
+# load data with mesab background subracted
+
+```{r}
+X11_22_20 <- read_xlsx("/mnt/sequence/home/biederman/11-22-20.xlsx")
+```
+
+## check data
+
+```{r}
+X11_22_20
+```
+
+## as factor
+
+```{r}
+X11_22_20$Day <- as.factor(X11_22_20$Day)
+X11_22_20$Feeding <- as.factor(X11_22_20$Feeding)
+```
+
+## check levels
+
+```{r}
+levels(X11_22_20$Feeding)
+```
+
+## check boxplot
+
+```{r}
+boxplot(Intensity ~ Feeding, data = X11_22_20)
+```
+
+## boxplot with title and outliers
+
+```{r, fig.height=12, fig.width=8}
+ggplot(X11_22_20, aes(x=Feeding, y=Intensity, color=Day)) + 
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2)) + 
+  scale_x_discrete(limits=c("Unfed", "15 min EY", "30 min EY", "1 Hr EY", "2 Hr EY")) + 
+  labs(title="BODIPY-C16 Egg Yolk Ingestion",x="Feeding Time", y = "BODIPY-C16 Fluorescence Intensity")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## no outlier, no title
+
+```{r, fig.width=4, fig.height=6}
+plot2 <- X11_22_20 %>%
+  filter(Intensity < 200000000) %>%
+  ggplot(aes(x=Feeding, y=Intensity)) +
+  geom_boxplot(outlier.shape = NA,color="black") + 
+  geom_jitter(position=position_jitter(0.2), size = 0.8) + 
+  scale_x_discrete(limits=c("Unfed", "15 min EY", "30 min EY", "1 Hr EY", "2 Hr EY"), labels = c("Unfed", "15 min", "30 min", "1 h", "2 h")) + 
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plot2
+```
+
+## Save plot
+
+```{r}
+save_plot("260121_BODIPY_feeding_boxplot_MESAB_subtracted_4x6in_300dpi.svg", plot2,
+          base_width = 4, base_height = 6, units = "in",dpi=300)
+save_plot("260121_BODIPY_feeding_boxplot_MESAB_subtracted_4x6in_300dpi.png", plot2,
+          base_width = 4, base_height = 6, units = "in",dpi=300)
+```
+
+# raw intensities for Welch two-sample t-test stats
+
+includes all outliers, 5 ms intensities 
+
+```{r}
+Unfed <- c(48720523.567, 50589600.895, 47890255.864, 48033460.179, 49393266.523, 50566088.364, 49364124.087, 49276461.346, 50084127.538, 49272888.915, 48943304.032, 48743432.163, 48365082.064, 48087732.464, 46621439.023)
+EY15_mesab <- c(57498139.392, 55818462.309, 56008108.223, 56372322.142, 56305848.316, 54686943.5, 53224488.63, 58090599.902, 56146092.08, 55756226.267, 55210534.915, 54294528.875, 54187386.662, 53876697.788, 53653129.136, 52423742.103)
+EY15 <- c(60725692.361, 61457784.754, 83510379.125, 62349531.021, 68630550.054, 67950508.693, 74418860.261, 78070099.418, 57949760.147, 77594669.283, 77327177.135, 76186271.739, 60602817.122, 58866103.982, 59148551.205, 58457751.607, 56574742.822)
+EY30_mesab <- c(58018189.085, 61061234.708, 61590711.932, 63747426.233, 62333296.422, 57330429.636, 57535112.515, 60023520.354, 68541536.136, 62281869.797, 59344062.456, 59150864.584, 59046639.685, 56907613.523, 54627440.521, 53142466.03)
+EY30 <- c(67519022.526, 83382242.484, 65730504.022, 94211856.375, 90261976.34, 75971741.644, 86940373.247, 104431946.025, 98137374.275, 167596073.14, 89684818.936, 80949959.681, 72547827.82, 67016507.429, 65971975.772, 65091714.512, 60351006.819)
+EYh1_mesab <- c(70222195.893, 64873089.941, 63360262.774, 67318004.204, 65469532.328, 58027985.12, 62426486.706, 68907551.624, 69836956.838, 69964643.087, 68538536.932, 66570035.478, 66623867.608, 66105885.625, 65062991.76)
+EYh1 <- c(114784522.698, 117737305.586, 96040920.432, 101008963.695, 96325486.546, 136386612.059, 94914396.884, 75312602.585, 134724142.014, 112105353.2, 110433189.481, 112210837.15, 110433926.487, 104547379.553, 103390300.974, 86903512.722)
+EYh2_mesab <- c(79137846.757, 79824521.169, 73254063.594, 76678059.308, 78540370.514, 68997210.422, 74797885.948, 64111036.216, 76523185.735, 71897317.871, 85692776.03, 78341225.414, 64761320.969, 87547000.645)
+EYh2 <- c(114319226.392, 161804241.683, 386296770.898, 116562856.191, 96502511.237, 98900717.759, 121563604.085, 279124074.448, 264097990.677, 204717917.301, 339138607.427, 122585974.388, 87584127.31, 114380868.735, 354883343.472, 273243403.088)
+```
+
+## Unfed vs 15 min EY mesab
+
+```{r}
+t.test(Unfed,EY15_mesab)
+```
+
+## Unfed vs 15 min EY
+
+```{r}
+t.test(Unfed,EY15)
+```
+
+## 15 min EY mesab vs 15 min EY
+
+```{r}
+t.test(EY15_mesab,EY15)
+```
+
+## Unfed vs 30 min EY mesab
+
+```{r}
+t.test(Unfed,EY30_mesab)
+```
+
+## Unfed vs 30 min EY
+
+```{r}
+t.test(Unfed,EY30)
+```
+
+## 30 min EY mesab vs 30 min EY
+
+```{r}
+t.test(EY30_mesab,EY30)
+```
+
+## Unfed vs 1h EY mesab
+
+```{r}
+t.test(Unfed,EYh1_mesab)
+```
+
+## Unfed vs 1h EY
+
+```{r}
+t.test(Unfed,EYh1)
+```
+
+## 1h EY mesab vs 1h EY
+
+```{r}
+t.test(EYh1_mesab,EYh1)
+```
+
+## Unfed vs 2h EY mesab
+
+```{r}
+t.test(Unfed,EYh2_mesab)
+```
+
+## Unfed vs 2h EY
+
+```{r}
+t.test(Unfed,EYh2)
+```
+
+## 2h EY mesab vs 2h EY
+
+```{r}
+t.test(EYh2_mesab,EYh2)
+```
+
+# intensities of mesab subtracted for Welch two-sample t-test stats
+
+includes all outliers, 5 ms intensities
+
+```{r}
+Unfeds <- c(-106005, 576074, -417011, -165385, -209656, 318603, 152029, -148649, 307998, 180496, 78922, -9354, -14124, -142200, -401738)
+EY15s <- c(6690691, 5488593, 4373667, 3132959, 2750842, 1502426, 1382161, 1263779, 530694, 5692778, 5611759, 5494033, 1459233, 1242134, 1102860, 966893, 476293)
+EY30s <- c(10989574, 9372798, 8574641, 7443685, 6893920, 5660183, 3863383, 1777534, 1398508, 27091449, 7539525, 5314137, 3089884, 1846105, 1664218, 1386408, 271123)
+EYh1s <- c(17681069, 13064803, 12319976, 8906985, 7852606, 7479937, 7402561, 2558233, 16556948, 10885904, 10848255, 10803615, 10691488, 9308190, 9060678, 4947152)
+EYh2s <- c(9618807, 85003718, 10349241, 20713507, 5774124, 11667888, 52721453, 46065185, 72975255, 69360549, 49493730, 32404388, 11859011, 9862330, 3169355, 231169888)
+```
+
+## Unfed subtracted vs 15 min EY
+
+```{r}
+t.test(Unfeds,EY15s)
+```
+## Unfed subtracted vs 15 min EY
+
+```{r}
+t.test(Unfeds,EY30s)
+```
+
+## Unfed subtracted vs 15 min EY
+
+```{r}
+t.test(Unfeds,EYh1s)
+```
+
+## Unfed subtracted vs 15 min EY
+
+```{r}
+t.test(Unfeds,EYh2s)
+```
+
+# n samples with mesab table
+
+```{r}
+as.data.frame(table(fig1$Feeding))
+```
+
+# n samples with mesab subtractex table
+
+```{r}
+as.data.frame(table(X11_22_20$Feeding))
+```
+
+# session info
+
+```{r}
+sessionInfo()
+```
