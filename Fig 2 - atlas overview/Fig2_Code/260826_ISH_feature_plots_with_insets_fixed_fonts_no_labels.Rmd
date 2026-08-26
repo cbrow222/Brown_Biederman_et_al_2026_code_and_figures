@@ -1,0 +1,93 @@
+---
+title: "ISH feature plots with insets"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+library(ggmagnify)
+library(gtable)
+library(grid)
+```  
+
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+```{r}
+atlas <- SetIdent(atlas, value = "tree_clusters")
+```
+
+# Feature with inset - agxtb
+```{r, fig.width=12, fig.height=2}
+agxtb_feature <- FeaturePlot(atlas, "agxtb", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 2.5, order = TRUE)
+agxtb_inset <- FeaturePlot(atlas, "agxtb", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 8, order = TRUE, label = FALSE, label.size = 2.5) + theme_void() + 
+  theme(legend.position = "none", plot.title = element_blank())
+agxtb_with_inset <- agxtb_feature + geom_magnify(from = c(xmin = -1, xmax = 1, ymin = -2, ymax = 0), to = c(xmin = 10, xmax = 17, ymin = 10, ymax = 17), axes = "", plot = agxtb_inset) + theme(text = element_text(family = "sans", size = 9), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8), legend.key.width = unit(0.125, "in"), legend.key.height = unit(0.2, "in")) 
+agxtb_with_inset
+```
+```{r}
+save_plot("260826_agxtb_feature_plot_with_inset.png", agxtb_with_inset, base_height = 2, base_width = 12)
+```
+
+# Feature with inset - zgc:92137
+```{r, fig.width=12, fig.height=2}
+zgc_feature <- FeaturePlot(atlas, "zgc:92137", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 2.5, order = TRUE) + ggtitle("amy2al2")
+zgc_inset <- FeaturePlot(atlas, "zgc:92137", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 8, order = TRUE, label = FALSE, label.size = 2.5) + theme_void() + 
+  theme(legend.position = "none", plot.title = element_blank())
+zgc_with_inset <- zgc_feature + geom_magnify(from = c(xmin = 6, xmax = 7, ymin = -0.5, ymax = 0.5), to = c(xmin = 10, xmax = 17, ymin = 10, ymax = 17), axes = "", plot = zgc_inset) + theme(text = element_text(family = "sans", size = 9), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8), legend.key.width = unit(0.125, "in"), legend.key.height = unit(0.2, "in")) 
+zgc_with_inset
+```
+```{r}
+save_plot("260826_zgc92137_feature_plot_with_inset.png", zgc_with_inset, base_height = 2, base_width = 12)
+```
+
+# Feature with inset - papss2a
+```{r, fig.width=12, fig.height=2}
+papss_feature <- FeaturePlot(atlas, "papss2a", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 2.5, order = TRUE)
+papss_inset <- FeaturePlot(atlas, "papss2a", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 8, order = TRUE, label = FALSE, label.size = 2.5) + theme_void() + 
+  theme(legend.position = "none", plot.title = element_blank())
+papss_with_inset <- papss_feature + geom_magnify(from = c(xmin = 6.5, xmax = 7.5, ymin = -4.5, ymax = -3.5), to = c(xmin = 10, xmax = 17, ymin = 10, ymax = 17), axes = "", plot = papss_inset) + theme(text = element_text(family = "sans", size = 9), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8), legend.key.width = unit(0.125, "in"), legend.key.height = unit(0.2, "in")) 
+papss_with_inset
+```
+```{r}
+save_plot("260826_papss2a_feature_plot_with_inset.png", papss_with_inset, base_height = 2, base_width = 12)
+```
+
+# Feature with inset - ctsbb
+```{r, fig.width=12, fig.height=2}
+ctsbb_feature <- FeaturePlot(atlas, "ctsbb", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 2.5, order = TRUE)
+ctsbb_inset <- FeaturePlot(atlas, "ctsbb", reduction = "umap", ncol = 4, coord.fixed = TRUE, keep.scale = "feature", cols = c("light gray", "red"), pt.size = 8, order = TRUE, label = FALSE, label.size = 2.5) +
+  theme_void() + theme(legend.position = "none", plot.title = element_blank())
+ctsbb_with_inset <- ctsbb_feature + geom_magnify(from = c(xmin = -7, xmax = -5.5, ymin = 7, ymax = 8.5), to = c(xmin = 10, xmax = 17, ymin = 10, ymax = 17), axes = "", plot = ctsbb_inset) + theme(text = element_text(family = "sans", size = 9), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8), legend.key.width = unit(0.125, "in"), legend.key.height = unit(0.2, "in")) 
+ctsbb_with_inset
+```
+```{r}
+save_plot("260826_ctsbb_feature_plot_with_inset.png", ctsbb_with_inset, base_height = 2, base_width = 12)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+
+

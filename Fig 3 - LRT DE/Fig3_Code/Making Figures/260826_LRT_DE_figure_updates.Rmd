@@ -1,0 +1,145 @@
+---
+title: "DE figure updates/fixes"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+``` 
+```{r, message=FALSE}
+library(ggmagnify)
+```
+```{r, message=FALSE}
+library(ggpattern)
+```
+
+
+# REad in LRT results
+```{r}
+LRT <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Brown_Biederman_et_al_2026_code_and_figures/Sup Data - DEGs LRT and pairwise/251211_DESeq_LRT_all_times_filtered_DE_results.csv")
+```
+
+# Get counts of clusters for each gene
+```{r}
+gene_Cluster_info <- LRT %>% group_by(gene) %>% summarise(Count = n())
+```
+
+# plot the histogram
+```{r, fig.width=3.25, fig.height=1.75}
+gene_count_hist = ggplot(gene_Cluster_info, aes(x = Count)) + geom_histogram(binwidth = 1, boundary = 0) +
+  labs(x = "Number of Clusters a LRT DEG is Identified In", y = "Number of Genes") + theme_minimal() + 
+  theme(text = element_text(family = "sans", size = 7))
+hist_inset <- gene_count_hist + theme(plot.background = element_rect(fill = "white", colour = NA), axis.title = element_blank(), panel.grid.minor = element_blank()) + scale_x_continuous(breaks = c(50, 100, 150)) 
+hist_with_inset <- gene_count_hist + geom_magnify(from = c(xmin = 54, xmax = 150, ymin = 0.1, ymax = 5), to = c(xmin = 29, xmax = 152, ymin = 300, ymax = 2000), axes = "y", plot = hist_inset) + scale_y_sqrt(breaks = c(0, 10, 50, 100, 500, 1000, 2000), labels = c(0, 10, 50, 100, 500, 1000, 2000)) 
+hist_with_inset
+```
+```{r}
+save_plot("260826_Cluster_genes_histogram_sqrt_scale.png", hist_with_inset, base_height = 1.75, base_width = 3.25)
+save_plot("260826_Cluster_genes_histogram_sqrt_scale.svg", hist_with_inset, base_height = 1.75, base_width = 3.25)
+```
+
+# Read in atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+```{r}
+response_groups <- read_csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Brown_Biederman_et_al_2026_code_and_figures/Fig 3 - LRT DE/Fig3_Code/Making Figures/260219_LRT_response_groups.csv")
+```
+
+# Read in lipid timings
+```{r}
+lipid_timings <- read_xlsx("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Atlas paper/Brown_Biederman_et_al_2026_code_and_figures/Fig 3 - LRT DE/Fig3_Code/Making Figures/260605_lipid_timing_by_cluster.xlsx")
+```
+
+# Get system info
+```{r}
+annotation_data <- atlas@meta.data %>% group_by(short_cell_type_cluster) %>% 
+  select(c(short_cell_type_cluster, system)) %>% unique()
+annotation_data$short_cell_type_cluster <- str_replace_all(annotation_data$short_cell_type_cluster, "_", "-")
+```
+
+# Remove atlas for space
+```{r}
+rm(atlas)
+```
+
+```{r}
+response_groups = column_to_rownames(response_groups, var = "gene_cluster")
+```
+```{r}
+response_groups$response_groups = as.character(response_groups$response_groups)
+```
+
+# Figuring out lipid flux details
+```{r}
+response_groups <- rownames_to_column(response_groups, var = "gene_cluster") %>% 
+  separate_wider_delim(cols = "gene_cluster", delim = "_", names = c("gene", "cluster"))
+```
+```{r}
+lipid_timings$cell_type_cluster <- str_replace_all(lipid_timings$cell_type_cluster, "_", "-")
+response_lipid <- left_join(response_groups, lipid_timings, by = c("cluster" = "cell_type_cluster"))
+```
+# Make column on whether it could be flux
+```{r}
+response_lipid <- response_lipid %>% mutate(Mechanism = case_when(
+  Lipid_timing == "t1-15HF" ~ "Direct",
+  (Lipid_timing == "t3-60HF") & (response_groups %in% c("3", "5")) ~ "Direct",
+  (Lipid_timing == "t5-240HF") & (response_groups == "3") ~ "Direct",
+  .default = "Signaling"
+))
+```
+
+## Add system to response group table
+```{r}
+response_group_data <- left_join(response_lipid, annotation_data, by = c("cluster" = "short_cell_type_cluster"))
+```
+## Make a table of number of genes from each group in each system
+```{r}
+response_group_system_table <- response_group_data %>% group_by(system, response_groups, Mechanism) %>% summarise(Count = n())
+```
+```{r}
+response_colors <- c("1" = "#e41a1c", "2" = "#377eb8", "3" = "#4daf4a", "4" = "#984ea3", "5" = "#ff7f00", "6" = "#ffff33")
+```
+```{r}
+response_group_system_table$response_groups <- as.factor(response_group_system_table$response_groups)
+```
+```{r}
+response_group_system_table$response_groups <- fct_relevel(response_group_system_table$response_groups, c("3", "2", "5", "4", "6", "1"))
+```
+
+# Plot it
+```{r, fig.width=4, fig.height=2.5}
+system_response_plot <- ggplot(response_group_system_table, aes(fill = response_groups, y = Count, x = system, pattern_density = Mechanism)) + geom_bar_pattern(position = "fill", stat = "identity", pattern = "stripe", pattern_fill = "black", color = "black") + 
+  labs(x = "System", y = "Fraction of DEG:cluster pairs", fill = "Response Group") +
+  scale_fill_manual(values = response_colors, labels = c("Chase", "30 min", "Long Feed", "Downregulated", "Early", "Extended")) + 
+  scale_pattern_density_manual(values = c("Direct" = 0, "Signaling" = 0.1)) +
+  theme_minimal() + theme(axis.text = element_text(size = 6, family = "sans") ,axis.text.x = element_text(angle = 45, hjust = 1), axis.title = element_text(size = 7, family = "sans"), legend.text = element_text(size = 6, family = "sans"), legend.title = element_text(size = 7, family = "sans"), legend.key.size = unit(0.15, "in"))
+system_response_plot
+```
+```{r}
+save_plot("260826_LRT_system_response_plot_mechanism_patterns.svg", system_response_plot, base_height = 2.5, base_width = 4)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+
