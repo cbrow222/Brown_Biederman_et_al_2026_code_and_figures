@@ -1,0 +1,107 @@
+---
+title: "Pairwise DE figure work"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+``` 
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Load pairwise DE results
+```{r}
+pairwise_full <- read.csv("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260129_short_cell_type_cluster_v2_0_pairwise_DE_from_250113.csv")
+```
+
+# Filter to just comparisons to unfed
+```{r}
+pairwise_full <- filter(pairwise_full, time %in% c("t1-15HF.t0-UF", "t2-30HF.t0-UF", "t3-60HF.t0-UF", "t4-120HF.t0-UF", "t5-240HF.t0-UF"))
+```
+
+
+# Get unique pairwise genes
+```{r}
+genes <- pairwise_full %>% select("gene") %>% unique() %>% unlist()
+```
+
+# Get average expression levels for pairwise genes in all clusters
+```{r}
+avg_exp <- AverageExpression(atlas, group.by = c("short_cell_type_cluster", "sample_name"), assay = "RNA", features = genes)
+```
+# Restructure avg_exp so that I can combine with LRT
+```{r}
+avg_exp_df <- as.data.frame(avg_exp[["RNA"]]) %>% 
+  rownames_to_column(var = "gene") %>%
+  pivot_longer(cols = 2:4023, values_to = "expression", names_to = "cluster_sample") %>%
+  separate_wider_delim(cols = "cluster_sample", delim = "_", names = c("cluster", "sample")) %>%
+  pivot_wider(names_from = "sample", values_from = "expression")
+```
+
+
+# Combine to filter the average expression to relvant rows
+```{r}
+pairwise_tags <- select(pairwise_full, c("gene", "short_cell_type_cluster"))
+heatmap_data <- left_join(pairwise_tags, avg_exp_df, by = c("gene" = "gene", "short_cell_type_cluster" = "cluster"))
+```
+
+# Create matrix with gene_cluster as rownames and expression as the data
+```{r}
+heatmap_matrix <- tidyr::unite(heatmap_data, "gene":"short_cell_type_cluster", col="gene_celltype", sep = "_") %>% unique() %>% relocate(`t3-sample9-60HF`, .after = `t2-sample8-30HF`)  %>% remove_rownames() %>% column_to_rownames(var = "gene_celltype") %>% as.matrix()
+```
+
+
+# Create tagging system for DE times
+```{r}
+DE_time_tags <- pairwise_full %>% dplyr::select(c("gene","short_cell_type_cluster", "time", "log2FoldChange")) %>%
+  tidyr::unite("gene":"short_cell_type_cluster", col="gene_celltype", sep = "_") %>%
+  unique() %>% group_by(gene_celltype)
+DE_time_tags$time <- DE_time_tags$time %>% str_remove(".t0-UF")
+DE_time_tags <- DE_time_tags %>% pivot_wider(names_from = "time", values_from = "log2FoldChange") %>% 
+  column_to_rownames(var = "gene_celltype")
+```
+```{r}
+DE_sig <- DE_time_tags
+DE_sig[!is.na(DE_sig)] <- "Yes"
+DE_sig[is.na(DE_sig)] <- "No"
+DE_sig <- DE_sig[,c("t5-240HF", "t4-120HF", "t3-60HF", "t2-30HF", "t1-15HF")]
+colnames(DE_sig) <- c("4 h", "2 h", "1 h", "30 min", "15 min")
+```
+
+```{r}
+Sig_colors <- c("Yes" = "black", "No" = "light gray")
+```
+
+# Make heatmap
+```{r, fig.height=10, fig.width=3.5}
+h1 <- pheatmap(heatmap_matrix, scale = "row",  cluster_cols = FALSE, show_rownames = FALSE, annotation_colors = list(`15 min` = Sig_colors, `30 min` = Sig_colors,`1 h` = Sig_colors,`2 h` = Sig_colors,`4 h` = Sig_colors), annotation_row = DE_sig, fontsize = 6, treeheight_row = 8)
+```
+```{r}
+save_plot("260831_pairwise_DE_expression_heatmap.png", h1, base_height = 10, base_width = 3.5)
+save_plot("260831_pairwise_DE_expression_heatmap.svg", h1, base_height = 10, base_width = 3.5)
+```
+
+
+# Session info
+```{r}
+sessionInfo()
+```
+

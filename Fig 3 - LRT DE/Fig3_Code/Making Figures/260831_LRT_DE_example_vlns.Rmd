@@ -1,0 +1,72 @@
+---
+title: "DE figure updates/fixes"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+library(aplot)
+library(RColorBrewer)
+``` 
+
+
+# Finding good example genes for each response group
+## Read in atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/260212_WT_atlas_v2_cell_cycle.rds")
+```
+
+## I can get genes for all clusters from EnteroAnte-2 so I'm going to subset that out
+```{r}
+aEC2 <- subset(atlas, short_cell_type_cluster == "EnteroAnte_2")
+```
+
+# Making a figure of these 6 options - in ggviolin so I have more control
+## Make the data frame
+```{r}
+vln_df_nupr = data.frame(expression = aEC2[["RNA"]]@data["nupr1b",], condition = aEC2$condition, gene = "nupr1b")
+vln_df_flvcr1 = data.frame(expression = aEC2[["RNA"]]@data["flvcr1",], condition = aEC2$condition, gene = "flvcr1")
+vln_df_apoa4a = data.frame(expression = aEC2[["RNA"]]@data["apoa4a",], condition = aEC2$condition, gene = "apoa4a")
+vln_df_lpin2 = data.frame(expression = aEC2[["RNA"]]@data["lpin2",], condition = aEC2$condition, gene = "lpin2")
+vln_df_nocta = data.frame(expression = aEC2[["RNA"]]@data["nocta",], condition = aEC2$condition, gene = "nocta")
+vln_df_slc26a6.1 = data.frame(expression = aEC2[["RNA"]]@data["slc26a6.1",], condition = aEC2$condition, gene = "slc26a6.1")
+vln_df_examples <- rbind(vln_df_nupr, vln_df_flvcr1, vln_df_apoa4a, vln_df_lpin2, vln_df_nocta, vln_df_slc26a6.1)
+```
+## Make the gene a factor with the correct levels
+```{r}
+vln_df_examples$gene <- factor(vln_df_examples$gene, levels = c("nupr1b", "flvcr1", "apoa4a", "lpin2", "nocta", "slc26a6.1"))
+```
+
+```{r, fig.width=2.75, fig.height=5.5}
+examples_vln <- ggplot(vln_df_examples, aes(x = condition, y = expression)) + 
+  geom_violin(aes(fill = gene), trim=TRUE, scale = "width") + 
+  geom_jitter(color = "black", size = 0.01) + facet_wrap(~gene, ncol = 1) +
+  labs(y = "Expression Level") +
+  scale_x_discrete(name = "Condition", labels = c("unfed", "15 min", "30 min", "1 h", "2 h", "4 h")) + scale_fill_manual(values = c("#4daf4a", "#377eb8", "#ff7f00", "#984ea3", "#ffff33", "#e41a1c")) + theme_minimal() + theme(legend.position = "none", text = element_text(size = 7, family = "sans"), axis.text.x = element_text(angle=45, hjust = 1, size = 7), strip.text = element_text(hjust = 0.5, face = "bold", size = 8), axis.title = element_text(size = 8), axis.text = element_text(size = 7))
+examples_vln
+```
+```{r}
+save_plot("260831_LRT_response_group_example_violins.png", examples_vln, base_height = 5.5, base_width = 2.75)
+save_plot("260831_LRT_response_group_example_violins.svg", examples_vln, base_height = 5.5, base_width = 2.75)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+
