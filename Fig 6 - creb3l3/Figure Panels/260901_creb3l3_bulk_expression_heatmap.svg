@@ -265,15 +265,15 @@
         fill: #e6573c;
       }
 
-      .st172, .st173, .st174, .st175 {
+      .st172, .st173, .st174, .st175, .st176 {
         isolation: isolate;
       }
 
-      .st172, .st174, .st176 {
+      .st172, .st174, .st175 {
         font-family: ArialMT, Arial;
       }
 
-      .st172, .st175 {
+      .st172, .st176 {
         font-size: 7px;
       }
 
@@ -413,6 +413,10 @@
         fill: #ebf7e3;
       }
 
+      .st175 {
+        font-size: 6px;
+      }
+
       .st73, .st206 {
         fill: #a6cde2;
       }
@@ -465,15 +469,11 @@
         fill: #66a61e;
       }
 
-      .st176 {
-        font-size: 6px;
-      }
-
       .st94, .st216 {
         fill: #fedf8f;
       }
 
-      .st175 {
+      .st176 {
         font-family: Arial-BoldMT, Arial;
         font-weight: 700;
       }
@@ -1658,7 +1658,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 34.25)"><tspan x="0" y="0">acsl4a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 34.25)"><tspan x="0" y="0">acsl4a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1667,7 +1669,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 39.93)"><tspan x="0" y="0">six7</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 39.93)"><tspan x="0" y="0">six7</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1676,7 +1680,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 45.6)"><tspan x="0" y="0">ivns1abpb</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 45.6)"><tspan x="0" y="0">ivns1abpb</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1685,7 +1691,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 51.28)"><tspan x="0" y="0">lgals2b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 51.28)"><tspan x="0" y="0">lgals2b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1694,7 +1702,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 56.95)"><tspan x="0" y="0">arl13a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 56.95)"><tspan x="0" y="0">arl13a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1703,7 +1713,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 62.63)"><tspan x="0" y="0">si:dkey-61n16.5</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 62.63)"><tspan x="0" y="0">si:dkey-61n16.5</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1712,7 +1724,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 68.3)"><tspan x="0" y="0">cabp5a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 68.3)"><tspan x="0" y="0">cabp5a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1721,7 +1735,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 73.98)"><tspan x="0" y="0">smox</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 73.98)"><tspan x="0" y="0">smox</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1730,7 +1746,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 79.65)"><tspan x="0" y="0">pfkfb4b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 79.65)"><tspan x="0" y="0">pfkfb4b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1739,7 +1757,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 85.33)"><tspan x="0" y="0">ptp4a3b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 85.33)"><tspan x="0" y="0">ptp4a3b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1748,7 +1768,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 91)"><tspan x="0" y="0">slc1a8b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 91)"><tspan x="0" y="0">slc1a8b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1757,7 +1779,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 96.68)"><tspan x="0" y="0">BX322555.3</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 96.68)"><tspan x="0" y="0">BX322555.3</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1766,7 +1790,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 102.35)"><tspan x="0" y="0">hif1al</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 102.35)"><tspan x="0" y="0">hif1al</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1775,7 +1801,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 108.03)"><tspan x="0" y="0">usp2a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 108.03)"><tspan x="0" y="0">usp2a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1784,7 +1812,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 113.7)"><tspan x="0" y="0">irf2bp2b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 113.7)"><tspan x="0" y="0">irf2bp2b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1793,7 +1823,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 123.38)"><tspan x="0" y="0">cry-dash</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 123.38)"><tspan x="0" y="0">cry-dash</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1802,7 +1834,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 129.05)"><tspan x="0" y="0">lpin1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 129.05)"><tspan x="0" y="0">lpin1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1811,7 +1845,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 134.73)"><tspan x="0" y="0">per2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 134.73)"><tspan x="0" y="0">per2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1820,7 +1856,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 140.4)"><tspan x="0" y="0">fabp6</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 140.4)"><tspan x="0" y="0">fabp6</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1829,7 +1867,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 146.08)"><tspan x="0" y="0">per1a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 146.08)"><tspan x="0" y="0">per1a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1838,7 +1878,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 155.75)"><tspan x="0" y="0">crygmx</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 155.75)"><tspan x="0" y="0">crygmx</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1847,7 +1889,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 161.43)"><tspan x="0" y="0">lim2.4</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 161.43)"><tspan x="0" y="0">lim2.4</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1856,7 +1900,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 167.1)"><tspan x="0" y="0">cryba2b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 167.1)"><tspan x="0" y="0">cryba2b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1865,7 +1911,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 172.78)"><tspan x="0" y="0">cish</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 172.78)"><tspan x="0" y="0">cish</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1874,7 +1922,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 178.45)"><tspan x="0" y="0">zcchc2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 178.45)"><tspan x="0" y="0">zcchc2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1883,7 +1933,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 184.13)"><tspan x="0" y="0">crybb1l1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 184.13)"><tspan x="0" y="0">crybb1l1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1892,7 +1944,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 189.8)"><tspan x="0" y="0">cryba4</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 189.8)"><tspan x="0" y="0">cryba4</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1901,7 +1955,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 195.48)"><tspan x="0" y="0">cryba1l1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 195.48)"><tspan x="0" y="0">cryba1l1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1910,7 +1966,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 201.16)"><tspan x="0" y="0">crygn2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 201.16)"><tspan x="0" y="0">crygn2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1919,7 +1977,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 206.83)"><tspan x="0" y="0">crygm2d13</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 206.83)"><tspan x="0" y="0">crygm2d13</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1928,7 +1988,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 212.51)"><tspan x="0" y="0">crybb1l2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 212.51)"><tspan x="0" y="0">crybb1l2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1937,7 +1999,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 218.18)"><tspan x="0" y="0">si:ch211-255g12.6</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 218.18)"><tspan x="0" y="0">si:ch211-255g12.6</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1946,7 +2010,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 227.86)"><tspan x="0" y="0">apoa4b.3</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 227.86)"><tspan x="0" y="0">apoa4b.3</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1955,7 +2021,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 233.53)"><tspan x="0" y="0">apoa4b.2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 233.53)"><tspan x="0" y="0">apoa4b.2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1964,7 +2032,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 239.21)"><tspan x="0" y="0">apoea</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 239.21)"><tspan x="0" y="0">apoea</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1973,7 +2043,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 248.88)"><tspan x="0" y="0">dennd2da</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 248.88)"><tspan x="0" y="0">dennd2da</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1982,7 +2054,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 254.56)"><tspan x="0" y="0">axdnd1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 254.56)"><tspan x="0" y="0">axdnd1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -1991,7 +2065,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 260.23)"><tspan x="0" y="0">zmp:0000000845</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 260.23)"><tspan x="0" y="0">zmp:0000000845</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2000,7 +2076,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 265.91)"><tspan x="0" y="0">cpa1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 265.91)"><tspan x="0" y="0">cpa1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2009,7 +2087,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 271.58)"><tspan x="0" y="0">apoa4b.1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 271.58)"><tspan x="0" y="0">apoa4b.1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2018,7 +2098,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 277.26)"><tspan x="0" y="0">CR361564.1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 277.26)"><tspan x="0" y="0">CR361564.1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2027,7 +2109,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 282.93)"><tspan x="0" y="0">CABZ01069162.1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 282.93)"><tspan x="0" y="0">CABZ01069162.1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2036,7 +2120,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 288.61)"><tspan x="0" y="0">fabp2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 288.61)"><tspan x="0" y="0">fabp2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2045,7 +2131,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 294.28)"><tspan x="0" y="0">apoa1a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 294.28)"><tspan x="0" y="0">apoa1a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2054,7 +2142,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 309.63)"><tspan x="0" y="0">pias4a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 309.63)"><tspan x="0" y="0">pias4a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2063,7 +2153,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 315.31)"><tspan x="0" y="0">slc25a28</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 315.31)"><tspan x="0" y="0">slc25a28</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2072,7 +2164,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 320.98)"><tspan x="0" y="0">BX470116.1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 320.98)"><tspan x="0" y="0">BX470116.1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2081,7 +2175,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 326.66)"><tspan x="0" y="0">hmox2a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 326.66)"><tspan x="0" y="0">hmox2a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2090,7 +2186,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 332.33)"><tspan x="0" y="0">aff2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 332.33)"><tspan x="0" y="0">aff2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2099,7 +2197,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 338.01)"><tspan x="0" y="0">dbt</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 338.01)"><tspan x="0" y="0">dbt</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2108,7 +2208,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 343.68)"><tspan x="0" y="0">helq</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 343.68)"><tspan x="0" y="0">helq</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2117,7 +2219,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 349.36)"><tspan x="0" y="0">gpc1b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 349.36)"><tspan x="0" y="0">gpc1b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2126,7 +2230,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 355.03)"><tspan x="0" y="0">sec13</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 355.03)"><tspan x="0" y="0">sec13</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2135,7 +2241,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 360.71)"><tspan x="0" y="0">acad8</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 360.71)"><tspan x="0" y="0">acad8</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2144,7 +2252,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 366.38)"><tspan x="0" y="0">cpt1ab</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 366.38)"><tspan x="0" y="0">cpt1ab</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2153,7 +2263,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 372.06)"><tspan x="0" y="0">gde1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 372.06)"><tspan x="0" y="0">gde1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2162,7 +2274,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 377.73)"><tspan x="0" y="0">shdb</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 377.73)"><tspan x="0" y="0">shdb</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2171,7 +2285,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 383.41)"><tspan x="0" y="0">si:ch211-276a17.5</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 383.41)"><tspan x="0" y="0">si:ch211-276a17.5</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2180,7 +2296,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 389.08)"><tspan x="0" y="0">inaa</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 389.08)"><tspan x="0" y="0">inaa</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2189,7 +2307,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 394.76)"><tspan x="0" y="0">cry3a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 394.76)"><tspan x="0" y="0">cry3a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2198,7 +2318,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 400.43)"><tspan x="0" y="0">opn1sw1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 400.43)"><tspan x="0" y="0">opn1sw1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2207,7 +2329,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 406.11)"><tspan x="0" y="0">tent5ba</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 406.11)"><tspan x="0" y="0">tent5ba</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2216,7 +2340,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 411.78)"><tspan x="0" y="0">nxf1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 411.78)"><tspan x="0" y="0">nxf1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2225,7 +2351,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 417.46)"><tspan x="0" y="0">ftr67</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 417.46)"><tspan x="0" y="0">ftr67</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2234,7 +2362,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 423.13)"><tspan x="0" y="0">guk1b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 423.13)"><tspan x="0" y="0">guk1b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2243,7 +2373,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 428.81)"><tspan x="0" y="0">crebbpa</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 428.81)"><tspan x="0" y="0">crebbpa</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2252,7 +2384,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 438.48)"><tspan x="0" y="0">si:ch211-216l23.1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 438.48)"><tspan x="0" y="0">si:ch211-216l23.1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2261,7 +2395,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 444.16)"><tspan x="0" y="0">epb41l4a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 444.16)"><tspan x="0" y="0">epb41l4a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2270,7 +2406,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 449.83)"><tspan x="0" y="0">irs2b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 449.83)"><tspan x="0" y="0">irs2b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2279,7 +2417,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 455.51)"><tspan x="0" y="0">slc25a55a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 455.51)"><tspan x="0" y="0">slc25a55a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2288,7 +2428,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 461.18)"><tspan x="0" y="0">btg1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 461.18)"><tspan x="0" y="0">btg1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2297,7 +2439,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 466.86)"><tspan x="0" y="0">atf3</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 466.86)"><tspan x="0" y="0">atf3</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2306,7 +2450,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 472.53)"><tspan x="0" y="0">nfil3-5</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 472.53)"><tspan x="0" y="0">nfil3-5</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2315,7 +2461,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 482.21)"><tspan x="0" y="0">egr1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 482.21)"><tspan x="0" y="0">egr1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2324,7 +2472,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 487.88)"><tspan x="0" y="0">opn6b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 487.88)"><tspan x="0" y="0">opn6b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2333,7 +2483,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 493.56)"><tspan x="0" y="0">npas4a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 493.56)"><tspan x="0" y="0">npas4a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2342,7 +2494,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 499.23)"><tspan x="0" y="0">egr4</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 499.23)"><tspan x="0" y="0">egr4</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2351,7 +2505,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 504.91)"><tspan x="0" y="0">fbxl6</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 504.91)"><tspan x="0" y="0">fbxl6</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2360,7 +2516,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 510.58)"><tspan x="0" y="0">uck2a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 510.58)"><tspan x="0" y="0">uck2a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2369,7 +2527,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 516.26)"><tspan x="0" y="0">tent5ab</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 516.26)"><tspan x="0" y="0">tent5ab</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2378,7 +2538,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 521.93)"><tspan x="0" y="0">angptl4</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 521.93)"><tspan x="0" y="0">angptl4</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2387,7 +2549,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 527.61)"><tspan x="0" y="0">mplkip</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 527.61)"><tspan x="0" y="0">mplkip</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2396,7 +2560,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 533.28)"><tspan x="0" y="0">clk4a</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 533.28)"><tspan x="0" y="0">clk4a</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2405,7 +2571,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 538.96)"><tspan x="0" y="0">dusp2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 538.96)"><tspan x="0" y="0">dusp2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2414,7 +2582,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 544.63)"><tspan x="0" y="0">serpinh1b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 544.63)"><tspan x="0" y="0">serpinh1b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2423,7 +2593,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 550.31)"><tspan x="0" y="0">elovl4b</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 550.31)"><tspan x="0" y="0">elovl4b</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2432,7 +2604,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(267.84 555.98)"><tspan x="0" y="0">si:ch211-160f23.7</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(267.84 555.98)"><tspan x="0" y="0">si:ch211-160f23.7</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2705,7 +2879,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st175" transform="translate(130.63 622.46) rotate(-45)"><tspan x="0" y="0">Creb3l3 deletion response</tspan></text>
+            <g class="st173">
+              <text class="st176" transform="translate(130.63 622.46) rotate(-45)"><tspan x="0" y="0">Creb3l3 deletion response</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2714,7 +2890,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st175" transform="translate(129.09 614.68) rotate(-45)"><tspan x="0" y="0">snRNA-seq LRT status</tspan></text>
+            <g class="st173">
+              <text class="st176" transform="translate(129.09 614.68) rotate(-45)"><tspan x="0" y="0">snRNA-seq LRT status</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2723,7 +2901,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st175" transform="translate(108.24 624.98) rotate(-45)"><tspan x="0" y="0">creb3l3 expression overlap</tspan></text>
+            <g class="st173">
+              <text class="st176" transform="translate(108.24 624.98) rotate(-45)"><tspan x="0" y="0">creb3l3 expression overlap</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2732,7 +2912,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(231.3 14.82)"><tspan x="0" y="0">creb3l3(-/-)</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(231.3 14.82)"><tspan x="0" y="0">creb3l3(-/-)</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -2741,164 +2923,204 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(194.76 14.39)"><tspan x="0" y="0">creb3l3(+/-)</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(194.76 14.39)"><tspan x="0" y="0">creb3l3(+/-)</tspan></text>
+            </g>
           </g>
         </g>
       </g>
     </g>
-    <g class="st173">
+    <g>
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st175" transform="translate(208.32 637.83)"><tspan x="0" y="0">snRNA-seq (creb3l3) expression overlap</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st176" transform="translate(198.14 637.83)"><tspan x="0" y="0">snRNA-seq (creb3l3) expression overlap</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <rect class="st38" x="198.14" y="640.33" width="10.02" height="10.02"/>
+      <rect class="st5" x="198.14" y="650.36" width="10.02" height="10.02"/>
+      <rect class="st0" x="198.14" y="660.38" width="10.02" height="10.02"/>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 647.85)"><tspan x="0" y="0">Both paralog expression region</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 657.87)"><tspan x="0" y="0">creb3l3b expression region</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 667.9)"><tspan x="0" y="0">No creb3l3 expression region</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
     </g>
-    <rect class="st38" x="208.32" y="640.33" width="10.02" height="10.02"/>
-    <rect class="st5" x="208.32" y="650.36" width="10.02" height="10.02"/>
-    <rect class="st0" x="208.32" y="660.38" width="10.02" height="10.02"/>
-    <g class="st173">
+    <g>
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(220.34 647.85)"><tspan x="0" y="0">Both paralog expression region</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st176" transform="translate(198.14 677.4)"><tspan x="0" y="0">snRNA-seq LRT status</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <rect class="st79" x="198.14" y="679.91" width="10.02" height="10.02"/>
+      <rect class="st35" x="198.14" y="689.93" width="10.02" height="10.02"/>
+      <rect class="st62" x="198.14" y="699.95" width="10.02" height="10.02"/>
+      <rect class="st44" x="198.14" y="709.98" width="10.02" height="10.02"/>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 687.43)"><tspan x="0" y="0">Not LRT DEG</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 698.45)"><tspan x="0" y="0">Both paralog expression LRT DEG</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 707.47)"><tspan x="0" y="0">creb3l3b expression cluster LRT DEG</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st173">
+        <g class="st173">
+          <g class="st173">
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 717.49)"><tspan x="0" y="0">No creb3l3 expression cluster LRT DEG</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
     </g>
-    <g class="st173">
+    <g>
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(220.34 657.87)"><tspan x="0" y="0">creb3l3b expression region</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st176" transform="translate(198.14 565.4)"><tspan x="0" y="0">Creb3l3 deletion response</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <g class="st173">
+      <rect class="st51" x="198.14" y="567.9" width="10.02" height="10.02"/>
+      <rect class="st111" x="198.14" y="577.92" width="10.02" height="10.02"/>
+      <rect class="st86" x="198.14" y="587.95" width="10.02" height="10.02"/>
+      <rect class="st106" x="198.14" y="597.97" width="10.02" height="10.02"/>
+      <rect class="st58" x="198.14" y="607.99" width="10.02" height="10.02"/>
+      <rect class="st96" x="198.14" y="618.01" width="10.02" height="10.02"/>
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(220.34 667.9)"><tspan x="0" y="0">No creb3l3 expression region</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 575.42)"><tspan x="0" y="0">Upregulated HLM Downregulated</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <g class="st173">
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st175" transform="translate(207.41 677.4)"><tspan x="0" y="0">snRNA-seq LRT status</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 585.44)"><tspan x="0" y="0">Upregulated not HLM Responsive</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <rect class="st79" x="207.41" y="679.91" width="10.02" height="10.02"/>
-    <rect class="st35" x="207.41" y="689.93" width="10.02" height="10.02"/>
-    <rect class="st62" x="207.41" y="699.95" width="10.02" height="10.02"/>
-    <rect class="st44" x="207.41" y="709.98" width="10.02" height="10.02"/>
-    <g class="st173">
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(219.43 687.43)"><tspan x="0" y="0">Not LRT DEG</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 595.46)"><tspan x="0" y="0">Downregulated Uniformly</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <g class="st173">
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(219.43 698.45)"><tspan x="0" y="0">Both paralog expression LRT DEG</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 605.49)"><tspan x="0" y="0">Blunted HLM Induction</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <g class="st173">
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(219.43 707.47)"><tspan x="0" y="0">creb3l3b expression cluster LRT DEG</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 615.51)"><tspan x="0" y="0">Eliminated HLM Induction</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
-    </g>
-    <g class="st173">
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(219.43 717.49)"><tspan x="0" y="0">No creb3l3 expression cluster LRT DEG</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st175" transform="translate(207.14 565.4)"><tspan x="0" y="0">Creb3l3 deletion response</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <rect class="st51" x="207.14" y="567.9" width="10.02" height="10.02"/>
-    <rect class="st111" x="207.14" y="577.92" width="10.02" height="10.02"/>
-    <rect class="st86" x="207.14" y="587.95" width="10.02" height="10.02"/>
-    <rect class="st106" x="207.14" y="597.97" width="10.02" height="10.02"/>
-    <rect class="st58" x="207.14" y="607.99" width="10.02" height="10.02"/>
-    <rect class="st96" x="207.14" y="618.01" width="10.02" height="10.02"/>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 575.42)"><tspan x="0" y="0">Upregulated HLM Downregulated</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 585.44)"><tspan x="0" y="0">Upregulated not HLM Responsive</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 595.46)"><tspan x="0" y="0">Downregulated Uniformly</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 605.49)"><tspan x="0" y="0">Blunted HLM Induction</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 615.51)"><tspan x="0" y="0">Eliminated HLM Induction</tspan></text>
-          </g>
-        </g>
-      </g>
-    </g>
-    <g class="st173">
-      <g class="st173">
-        <g class="st173">
-          <g class="st173">
-            <text class="st172" transform="translate(219.16 625.53)"><tspan x="0" y="0">Upregulated HLM Induced</tspan></text>
+            <g class="st173">
+              <g class="st173">
+                <text class="st172" transform="translate(210.16 625.53)"><tspan x="0" y="0">Upregulated HLM Induced</tspan></text>
+              </g>
+            </g>
           </g>
         </g>
       </g>
@@ -3007,7 +3229,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 167.42)"><tspan x="0" y="0">0</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 167.42)"><tspan x="0" y="0">0</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3016,7 +3240,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 137.42)"><tspan x="0" y="0">0.2</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 137.42)"><tspan x="0" y="0">0.2</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3025,7 +3251,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 107.42)"><tspan x="0" y="0">0.4</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 107.42)"><tspan x="0" y="0">0.4</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3034,7 +3262,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 77.42)"><tspan x="0" y="0">0.6</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 77.42)"><tspan x="0" y="0">0.6</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3043,7 +3273,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 47.42)"><tspan x="0" y="0">0.8</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 47.42)"><tspan x="0" y="0">0.8</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3052,7 +3284,9 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st172" transform="translate(332.89 17.42)"><tspan x="0" y="0">1</tspan></text>
+            <g class="st173">
+              <text class="st172" transform="translate(332.89 17.42)"><tspan x="0" y="0">1</tspan></text>
+            </g>
           </g>
         </g>
       </g>
@@ -3061,15 +3295,25 @@
       <g class="st173">
         <g class="st173">
           <g class="st173">
-            <text class="st174" transform="translate(349.37 44.91) rotate(90)"><tspan x="0" y="0">Relative Expression</tspan></text>
+            <g class="st173">
+              <text class="st174" transform="translate(349.37 44.91) rotate(90)"><tspan x="0" y="0">Relative Expression</tspan></text>
+            </g>
           </g>
         </g>
       </g>
     </g>
-    <text class="st176" transform="translate(195.76 24.16)"><tspan x="0" y="0">Unfed</tspan></text>
-    <text class="st176" transform="translate(215.91 24.16)"><tspan x="0" y="0">Fed</tspan></text>
-    <text class="st176" transform="translate(230.58 24.16)"><tspan x="0" y="0">Unfed</tspan></text>
-    <text class="st176" transform="translate(250.45 24.16)"><tspan x="0" y="0">Fed</tspan></text>
+    <g class="st173">
+      <text class="st175" transform="translate(195.76 24.16)"><tspan x="0" y="0">Unfed</tspan></text>
+    </g>
+    <g class="st173">
+      <text class="st175" transform="translate(215.91 24.16)"><tspan x="0" y="0">Fed</tspan></text>
+    </g>
+    <g class="st173">
+      <text class="st175" transform="translate(230.58 24.16)"><tspan x="0" y="0">Unfed</tspan></text>
+    </g>
+    <g class="st173">
+      <text class="st175" transform="translate(250.45 24.16)"><tspan x="0" y="0">Fed</tspan></text>
+    </g>
     <rect x="196.44" y="25.66" width="14.4" height="1.5"/>
     <rect x="213.93" y="25.66" width="14.4" height="1.5"/>
     <rect x="231.41" y="25.66" width="14.4" height="1.5"/>
@@ -3078,6 +3322,8 @@
     <rect x="230.9" y="15.49" width="32.4" height="1.5"/>
   </g>
   <g class="st173">
-    <text class="st172" transform="translate(267.95 300.29)"><tspan x="0" y="0">klf11b</tspan></text>
+    <g class="st173">
+      <text class="st172" transform="translate(267.95 300.29)"><tspan x="0" y="0">klf11b</tspan></text>
+    </g>
   </g>
 </svg>

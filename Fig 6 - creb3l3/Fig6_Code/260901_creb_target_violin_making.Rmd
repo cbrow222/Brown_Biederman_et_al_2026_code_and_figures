@@ -1,0 +1,62 @@
+---
+title: "Violins of HLM specific creb targets"
+author: "Cat Brown"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Load libraries
+```{r, message=FALSE}
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(cowplot)
+library(svglite)
+library(pheatmap)
+library(ggVennDiagram)
+``` 
+
+# Read in Atlas
+```{r}
+atlas <- readRDS("C:/Users/cat14/OneDrive - Johns Hopkins/Farber_Lab/Basecaller contents/atlas_paper/251119_atlas_v2_with_cell_cycle_score_info.rds")
+```
+
+# Get expression data for targets in aECs
+```{r}
+aECs <- subset(atlas, short_cell_type == "EnteroAnte")
+target_expression <- aECs@assays$RNA$counts %>% t() %>% data.frame() %>% dplyr::select(apoa4b.2, apoa4b.2.1, apoea) %>% cbind(aECs$condition) %>% cbind(aECs$short_cell_type_cluster) %>% 
+  pivot_longer(cols = c(apoa4b.2, apoa4b.2.1, apoea))
+```
+
+# Plot it
+```{r, fig.width=3.5, fig.height=3.5}
+target_vln <- ggplot(target_expression, aes(x = `aECs$condition`, fill = `aECs$condition`, y = `value`)) + 
+  geom_violin(scale = "width") + geom_jitter(size = 0.01, alpha = 0.1) +
+  facet_grid(rows = vars(name), cols = vars(`aECs$short_cell_type_cluster`), scales = "free_y") + 
+  scale_fill_manual(values = c("hotpink1", "orange", "yellow2", "lightgreen", "steelblue1", "mediumpurple1"), labels = c("Unfed", "15 min", "30 min", "1 h", "2 h", "4 h")) +
+  scale_x_discrete(labels = c("Unfed", "15 min", "30 min", "1 h", "2 h", "4 h")) +
+  labs(x = "Condition", y = "Expression Counts", fill = "Condition") + 
+  theme_minimal() + theme(text = element_text(size = 7), axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+                          legend.position = "none", strip.text = element_text(face = "bold"))
+target_vln
+```
+```{r}
+save_plot("260901_creb_target_aEC_expression_violins.svg",target_vln, base_height = 3.5, base_width = 3.5)
+```
+# Session info
+```{r}
+sessionInfo()
+```
+
+
+
+
+
+
+
